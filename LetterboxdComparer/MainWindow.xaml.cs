@@ -126,19 +126,31 @@ namespace CsvViewer
                 double x = i * barWidth;
                 double y = canvasHeight - barHeight;
 
-                // Bar rectangle
+                // Create the bar
                 var rect = new System.Windows.Shapes.Rectangle
                 {
-                    Width = barWidth - 10, // spacing
+                    Width = barWidth - 10,
                     Height = barHeight,
                     Fill = System.Windows.Media.Brushes.Gray
                 };
                 Canvas.SetLeft(rect, x + 5);
                 Canvas.SetTop(rect, y);
+
+                // Add hover events
+                rect.MouseEnter += (s, e) =>
+                {
+                    rect.Fill = System.Windows.Media.Brushes.Lime; // hover color
+                };
+
+                rect.MouseLeave += (s, e) =>
+                {
+                    rect.Fill = System.Windows.Media.Brushes.Gray; // revert to original color
+                };
+
                 barChartCanvas.Children.Add(rect);
 
                 // Add year label BELOW the bar
-                var label = new TextBlock
+                TextBlock label = new TextBlock
                 {
                     Text = year,
                     Width = barWidth,
@@ -152,7 +164,7 @@ namespace CsvViewer
                 barChartCanvas.Height = canvasHeight + 20; // extra space for year labels
 
                 // Count label
-                var countLabel = new TextBlock
+                TextBlock countLabel = new TextBlock
                 {
                     Text = count.ToString(),
                     Width = barWidth,

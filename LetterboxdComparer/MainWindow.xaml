@@ -7,8 +7,8 @@
             <Button x:Name="btnPickFile" Content="Select CSV File" Click="BtnPickFileClick" Width="150" Margin="0,0,0,10"/>
             <DataGrid x:Name="dataGrid" AutoGenerateColumns="True" Height="250"/>
             <TextBlock Text="Bar Chart:" FontWeight="Bold" Margin="0,10,0,5"/>
-            <ScrollViewer HorizontalScrollBarVisibility="Auto" Height="400">
-                <Canvas x:Name="barChartCanvas" Height="250"/>
+            <ScrollViewer HorizontalScrollBarVisibility="Auto" Height="300">
+                <Canvas x:Name="barChartCanvas" Height="270"/>
             </ScrollViewer>
         </StackPanel>
     </Grid>
