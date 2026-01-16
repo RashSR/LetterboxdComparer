@@ -1,13 +1,15 @@
 ﻿<Window x:Class="CsvViewer.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="CSV Viewer" Height="500" Width="600">
+        Title="Letterboxd Comparer" Height="800" Width="600">
     <Grid Margin="10">
         <StackPanel>
             <Button x:Name="btnPickFile" Content="Select CSV File" Click="BtnPickFileClick" Width="150" Margin="0,0,0,10"/>
             <DataGrid x:Name="dataGrid" AutoGenerateColumns="True" Height="250"/>
-            <TextBlock Text="Movies per year:" FontWeight="Bold" Margin="0,10,0,5"/>
-            <ListBox x:Name="yearCountsList" Height="150"/>
+            <TextBlock Text="Bar Chart:" FontWeight="Bold" Margin="0,10,0,5"/>
+            <ScrollViewer HorizontalScrollBarVisibility="Auto" Height="400">
+                <Canvas x:Name="barChartCanvas" Height="250"/>
+            </ScrollViewer>
         </StackPanel>
     </Grid>
 </Window>
