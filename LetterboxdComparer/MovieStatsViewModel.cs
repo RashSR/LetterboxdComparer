@@ -1,10 +1,12 @@
-﻿using Microsoft.Win32;
-using Microsoft.VisualBasic.FileIO;
+﻿using Microsoft.VisualBasic.FileIO;
+using Microsoft.Win32;
 using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Data;
+using System.Diagnostics;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Windows.Input;
 
@@ -16,10 +18,12 @@ namespace LetterboxdComparer
         public DataView DataTableView { get; private set; }
 
         public ICommand PickCsvCommand { get; }
+        public ICommand PickZipCommand { get; }
 
         public MovieStatsViewModel()
         {
             PickCsvCommand = new RelayCommand(_ => PickAndLoadCsv());
+            PickZipCommand = new RelayCommand(_ => PickAndLoadZip());
         }
 
         private void PickAndLoadCsv()
@@ -86,5 +90,48 @@ namespace LetterboxdComparer
 
         public event PropertyChangedEventHandler PropertyChanged;
         private void OnPropertyChanged(string name) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+
+        private void PickAndLoadZip()
+        {
+            var dlg = new OpenFileDialog
+            {
+                Title = "Select ZIP File",
+                Filter = "ZIP Files (*.zip)|*.zip"
+            };
+
+            if(dlg.ShowDialog() != true) 
+                return;
+
+            string zipPath = dlg.FileName;
+            ExtractInforamtionFromZipName(Path.GetFileName(zipPath));
+
+            string tempFolder = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+            Directory.CreateDirectory(tempFolder);
+
+            // Extract the zip file
+            ZipFile.ExtractToDirectory(zipPath, tempFolder);
+
+            // Get all CSV files inside
+            var csvFiles = Directory.GetFiles(tempFolder, "*.csv", System.IO.SearchOption.AllDirectories);
+
+            if(csvFiles.Length == 0)
+                return;
+
+        }
+
+        private void ExtractInforamtionFromZipName(string fileName)
+        {
+            //letterboxd forbids user names with dashes -> safe to split like this
+            string[] parts = fileName.Split('-');
+            if (parts.Length != 8)
+                throw new ArgumentException("Array must have length 8!");
+
+            string userName = parts[1];
+            Debug.WriteLine("User Name: " + userName);
+
+            DateTime exportTime = new DateTime(int.Parse(parts[2]), int.Parse(parts[3]), int.Parse(parts[4]), int.Parse(parts[5]), int.Parse(parts[6]), 0);
+            Debug.WriteLine("Export Time: " + exportTime.ToString("yyyy-MM-dd HH:mm"));
+        }
+
     }
 }
