@@ -6,7 +6,7 @@ namespace LetterboxdComparer.Entities
     public sealed class LetterboxdMovieStore
     {
         private static LetterboxdMovieStore instance = null;
-        private Dictionary<string, LetterboxdMovie> _movieDictionary = new Dictionary<string, LetterboxdMovie>();
+        private readonly Dictionary<string, LetterboxdMovie> _movieDictionary = new Dictionary<string, LetterboxdMovie>();
         private LetterboxdMovieStore()
         {
         }
