@@ -41,6 +41,21 @@ namespace LetterboxdComparer
 
         #region Methods
 
+        public SortedDictionary<int, int> GetMovieCountPerReleaseYear()
+        {
+            //TODO: add a toggle to add the german cinema release year
+            SortedDictionary<int, int> moviesPerYear = new SortedDictionary<int, int>();
+            foreach (LetterboxdWatchEvent watchEvent in WatchEvents)
+            {
+                if(moviesPerYear.ContainsKey(watchEvent.Movie.ReleaseYear))
+                    moviesPerYear[watchEvent.Movie.ReleaseYear]++;
+                else
+                    moviesPerYear[watchEvent.Movie.ReleaseYear] = 1;
+            }
+
+            return moviesPerYear;
+        }
+
         public override string ToString()
         {
             return $"{UserName} (Exported on {ExportTime:yyyy-MM-dd HH:mm}), WatchEvents: {WatchEvents.Count}";

@@ -11,7 +11,6 @@ using System.Globalization;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
-using System.Security.Policy;
 using System.Windows.Input;
 
 namespace LetterboxdComparer
@@ -131,6 +130,12 @@ namespace LetterboxdComparer
                     user.WatchEvents = ExtractWatchEventsFromFile(csvFile);
             }
             Debug.WriteLine(user);
+            foreach (KeyValuePair<int, int> kvp in user.GetMovieCountPerReleaseYear())
+            {
+                int key = kvp.Key;
+                int value = kvp.Value;
+                Debug.WriteLine($"Year: {key}, Count: {value}");
+            }
         }
 
         private LetterboxdUser CreateLetterboxdUserFromZipName(string fileName)
