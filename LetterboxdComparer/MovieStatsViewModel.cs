@@ -1,13 +1,16 @@
 ﻿using Microsoft.VisualBasic.FileIO;
 using Microsoft.Win32;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Data;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
+using System.Security.Policy;
 using System.Windows.Input;
 
 namespace LetterboxdComparer
@@ -28,13 +31,14 @@ namespace LetterboxdComparer
 
         private void PickAndLoadCsv()
         {
-            var dlg = new OpenFileDialog
+            OpenFileDialog dlg = new OpenFileDialog
             {
                 Title = "Select CSV File",
                 Filter = "CSV Files (*.csv)|*.csv|All Files (*.*)|*.*"
             };
 
-            if (dlg.ShowDialog() != true) return;
+            if(dlg.ShowDialog() != true)
+                return;
 
             DataTable dt = LoadCsv(dlg.FileName);
             DataTableView = dt.DefaultView;
@@ -45,23 +49,24 @@ namespace LetterboxdComparer
 
         private DataTable LoadCsv(string filePath)
         {
-            var dt = new DataTable();
+            DataTable dt = new DataTable();
 
-            using (TextFieldParser parser = new TextFieldParser(filePath))
+            using(TextFieldParser parser = new TextFieldParser(filePath))
             {
                 parser.TextFieldType = FieldType.Delimited;
                 parser.SetDelimiters(",");
                 parser.HasFieldsEnclosedInQuotes = true;
 
-                // Headers
-                if (!parser.EndOfData)
+                //Columns
+                if(!parser.EndOfData)
                 {
-                    var headers = parser.ReadFields();
-                    foreach (var h in headers) dt.Columns.Add(h);
+                    string[] columnNames = parser.ReadFields();
+                    foreach (var h in columnNames) 
+                        dt.Columns.Add(h);
                 }
 
-                // Rows
-                while (!parser.EndOfData)
+                //Rows
+                while(!parser.EndOfData)
                 {
                     var fields = parser.ReadFields();
                     dt.Rows.Add(fields);
@@ -77,7 +82,7 @@ namespace LetterboxdComparer
         private void UpdateYearCounts(DataTable dt)
         {
             YearCounts.Clear();
-
+            
             var counts = dt.AsEnumerable()
                 .Where(r => !string.IsNullOrWhiteSpace(r["Year"].ToString()))
                 .GroupBy(r => r["Year"].ToString())
@@ -93,7 +98,7 @@ namespace LetterboxdComparer
 
         private void PickAndLoadZip()
         {
-            var dlg = new OpenFileDialog
+            OpenFileDialog dlg = new OpenFileDialog
             {
                 Title = "Select ZIP File",
                 Filter = "ZIP Files (*.zip)|*.zip"
@@ -103,7 +108,8 @@ namespace LetterboxdComparer
                 return;
 
             string zipPath = dlg.FileName;
-            ExtractInforamtionFromZipName(Path.GetFileName(zipPath));
+            LetterboxdUser user = CreateLetterboxdUserFromZipName(Path.GetFileName(zipPath));
+            Debug.WriteLine(user);
 
             string tempFolder = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
             Directory.CreateDirectory(tempFolder);
@@ -112,14 +118,21 @@ namespace LetterboxdComparer
             ZipFile.ExtractToDirectory(zipPath, tempFolder);
 
             // Get all CSV files inside
-            var csvFiles = Directory.GetFiles(tempFolder, "*.csv", System.IO.SearchOption.AllDirectories);
+            string[] csvFiles = Directory.GetFiles(tempFolder, "*.csv", System.IO.SearchOption.AllDirectories);
 
             if(csvFiles.Length == 0)
                 return;
 
+            foreach(string csvFile in csvFiles)
+            {
+                string fileName = Path.GetFileNameWithoutExtension(csvFile);
+                if(fileName == "watched")
+                    user.WatchEvents = ExtractWatchEventsFromFile(csvFile);
+            }
+            Debug.WriteLine(user);
         }
 
-        private void ExtractInforamtionFromZipName(string fileName)
+        private LetterboxdUser CreateLetterboxdUserFromZipName(string fileName)
         {
             //letterboxd forbids user names with dashes -> safe to split like this
             string[] parts = fileName.Split('-');
@@ -127,11 +140,40 @@ namespace LetterboxdComparer
                 throw new ArgumentException("Array must have length 8!");
 
             string userName = parts[1];
-            Debug.WriteLine("User Name: " + userName);
-
             DateTime exportTime = new DateTime(int.Parse(parts[2]), int.Parse(parts[3]), int.Parse(parts[4]), int.Parse(parts[5]), int.Parse(parts[6]), 0);
-            Debug.WriteLine("Export Time: " + exportTime.ToString("yyyy-MM-dd HH:mm"));
+            return new LetterboxdUser(userName, exportTime);
         }
 
+        private List<LetterboxdWatchEvent> ExtractWatchEventsFromFile(string filePath)
+        {
+            List<LetterboxdWatchEvent> watchEvents = new List<LetterboxdWatchEvent>();
+
+            using(TextFieldParser parser = new TextFieldParser(filePath))
+            {
+                parser.TextFieldType = FieldType.Delimited;
+                parser.SetDelimiters(",");
+                parser.HasFieldsEnclosedInQuotes = true;
+
+                string[] columnNames = parser.ReadFields();
+                if(columnNames.Length != 4 || columnNames[0] != "Date" || columnNames[1] != "Name" || columnNames[2] != "Year" || columnNames[3] != "Letterboxd URI")
+                    throw new InvalidDataException("CSV file has invalid header for watched movies!");
+
+                while (!parser.EndOfData)
+                {
+                    string[] fields = parser.ReadFields();
+
+                    DateTime watchDate = DateTime.ParseExact(fields[0], "yyyy-MM-dd", CultureInfo.InvariantCulture);
+                    string movieName = fields[1];
+                    int releaseYear = int.Parse(fields[2]);
+                    string uuid = new Uri(fields[3]).Segments.Last(); //csv provides the format https://boxd.it/<uuid> -> extract id
+
+                    LetterboxdMovie movie = new LetterboxdMovie(movieName, releaseYear, uuid);
+                    LetterboxdWatchEvent watchEvent = new LetterboxdWatchEvent(watchDate, movie);
+                    watchEvents.Add(watchEvent);
+                }
+            }
+
+            return watchEvents;
+        }
     }
 }
