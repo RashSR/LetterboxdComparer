@@ -35,6 +35,11 @@ namespace LetterboxdComparer
             set { _uuid = value; }
         }
 
+        public string LetterboxdUrl
+        {
+            get { return $"https://boxd.it/{Uuid}"; }
+        }
+        
         #endregion
 
         #region Methods
