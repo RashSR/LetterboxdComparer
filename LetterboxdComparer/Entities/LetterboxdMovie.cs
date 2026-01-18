@@ -4,7 +4,9 @@ namespace LetterboxdComparer
     public class LetterboxdMovie
     {
         #region Constructor
-        public LetterboxdMovie(string name, int releaseYear, string uuid)
+
+        //Should only be called by LetterboxdMovieStore
+        internal LetterboxdMovie(string name, int releaseYear, string uuid)
         {
             _name = name;
             _releaseYear = releaseYear;

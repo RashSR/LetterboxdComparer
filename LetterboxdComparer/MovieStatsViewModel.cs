@@ -1,4 +1,5 @@
-﻿using Microsoft.VisualBasic.FileIO;
+﻿using LetterboxdComparer.Entities;
+using Microsoft.VisualBasic.FileIO;
 using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
@@ -167,7 +168,7 @@ namespace LetterboxdComparer
                     int releaseYear = int.Parse(fields[2]);
                     string uuid = new Uri(fields[3]).Segments.Last(); //csv provides the format https://boxd.it/<uuid> -> extract id
 
-                    LetterboxdMovie movie = new LetterboxdMovie(movieName, releaseYear, uuid);
+                    LetterboxdMovie movie = LetterboxdMovieStore.Instance.CreateMovie(movieName, releaseYear, uuid);
                     LetterboxdWatchEvent watchEvent = new LetterboxdWatchEvent(watchDate, movie);
                     watchEvents.Add(watchEvent);
                 }
