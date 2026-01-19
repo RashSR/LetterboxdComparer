@@ -3,9 +3,7 @@ using Microsoft.VisualBasic.FileIO;
 using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Data;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
@@ -15,10 +13,30 @@ using System.Windows.Input;
 
 namespace LetterboxdComparer
 {
-    public class MovieStatsViewModel
+    public class MovieStatsViewModel : INotifyPropertyChanged
     {
-        public ObservableCollection<MoviePerYear> YearCounts { get; } = new ObservableCollection<MoviePerYear>();
+        public event PropertyChangedEventHandler PropertyChanged;
+        private void OnPropertyChanged(string name) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
 
+        #region Properties
+
+        private LetterboxdUser _loadedUser;
+        public LetterboxdUser LoadedUser
+        {
+            get => _loadedUser;
+            private set
+            {
+                _loadedUser = value;
+                OnPropertyChanged(nameof(LoadedUser));
+                OnPropertyChanged(nameof(MovieCountsPerYear));
+            }
+        }
+
+        #endregion
+
+        public IEnumerable<KeyValuePair<int, int>> MovieCountsPerYear => LoadedUser?.GetMovieCountPerReleaseYear();
+
+        #region Commands
         public ICommand PickZipCommand { get; }
 
         public MovieStatsViewModel()
@@ -38,8 +56,8 @@ namespace LetterboxdComparer
                 return;
 
             string zipPath = dlg.FileName;
-            LetterboxdUser user = CreateLetterboxdUserFromZipName(Path.GetFileName(zipPath));
-            Debug.WriteLine(user);
+            LoadedUser = CreateLetterboxdUserFromZipName(Path.GetFileName(zipPath));
+            Debug.WriteLine(LoadedUser);
 
             string tempFolder = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
             Directory.CreateDirectory(tempFolder);
@@ -56,15 +74,15 @@ namespace LetterboxdComparer
                 switch (fileName)
                 {
                     case "watched":
-                        user.WatchEvents = ExtractEventsFromFile<LetterboxdWatchEvent>(csvFile);
+                        LoadedUser.WatchEvents = ExtractEventsFromFile<LetterboxdWatchEvent>(csvFile);
                         break;
                     case "watchlist":
-                        user.Watchlist = ExtractEventsFromFile<LetterboxdWatchlistEvent>(csvFile);
+                        LoadedUser.Watchlist = ExtractEventsFromFile<LetterboxdWatchlistEvent>(csvFile);
                         break;
                 }
             }
-            UpdateYearCountsFromUser(user);
-            Debug.WriteLine(user);
+            OnPropertyChanged(nameof(MovieCountsPerYear));
+            Debug.WriteLine(LoadedUser);
         }
 
         private LetterboxdUser CreateLetterboxdUserFromZipName(string fileName)
@@ -108,22 +126,6 @@ namespace LetterboxdComparer
             return eventEntries;
         }
 
-        private void UpdateYearCountsFromUser(LetterboxdUser user)
-        {
-            YearCounts.Clear();
-
-            SortedDictionary<int, int> counts =
-                user.GetMovieCountPerReleaseYear();
-
-            foreach (KeyValuePair<int,int> kv in counts)
-            {
-                YearCounts.Add(new MoviePerYear
-                {
-                    Year = kv.Key,
-                    Count = kv.Value
-                });
-            }
-        }
-
+        #endregion
     }
 }

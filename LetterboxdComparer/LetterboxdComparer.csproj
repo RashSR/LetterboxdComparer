@@ -63,7 +63,6 @@
     <Compile Include="Entities\LetterboxdUser.cs" />
     <Compile Include="Entities\LetterboxdWatchEvent.cs" />
     <Compile Include="Entities\LetterboxdWatchlistEvent.cs" />
-    <Compile Include="MoviePerYear.cs" />
     <Compile Include="MovieStatsViewModel.cs" />
     <Compile Include="RelayCommand.cs" />
     <Page Include="MainWindow.xaml">
