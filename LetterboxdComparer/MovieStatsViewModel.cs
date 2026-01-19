@@ -37,7 +37,7 @@ namespace LetterboxdComparer
                 Filter = "CSV Files (*.csv)|*.csv|All Files (*.*)|*.*"
             };
 
-            if(dlg.ShowDialog() != true)
+            if (dlg.ShowDialog() != true)
                 return;
 
             DataTable dt = LoadCsv(dlg.FileName);
@@ -51,22 +51,22 @@ namespace LetterboxdComparer
         {
             DataTable dt = new DataTable();
 
-            using(TextFieldParser parser = new TextFieldParser(filePath))
+            using (TextFieldParser parser = new TextFieldParser(filePath))
             {
                 parser.TextFieldType = FieldType.Delimited;
                 parser.SetDelimiters(",");
                 parser.HasFieldsEnclosedInQuotes = true;
 
                 //Columns
-                if(!parser.EndOfData)
+                if (!parser.EndOfData)
                 {
                     string[] columnNames = parser.ReadFields();
-                    foreach (var h in columnNames) 
+                    foreach (var h in columnNames)
                         dt.Columns.Add(h);
                 }
 
                 //Rows
-                while(!parser.EndOfData)
+                while (!parser.EndOfData)
                 {
                     var fields = parser.ReadFields();
                     dt.Rows.Add(fields);
@@ -82,7 +82,7 @@ namespace LetterboxdComparer
         private void UpdateYearCounts(DataTable dt)
         {
             YearCounts.Clear();
-            
+
             var counts = dt.AsEnumerable()
                 .Where(r => !string.IsNullOrWhiteSpace(r["Year"].ToString()))
                 .GroupBy(r => r["Year"].ToString())
@@ -104,7 +104,7 @@ namespace LetterboxdComparer
                 Filter = "ZIP Files (*.zip)|*.zip"
             };
 
-            if(dlg.ShowDialog() != true) 
+            if(dlg.ShowDialog() != true)
                 return;
 
             string zipPath = dlg.FileName;
@@ -113,29 +113,27 @@ namespace LetterboxdComparer
 
             string tempFolder = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
             Directory.CreateDirectory(tempFolder);
-
-            // Extract the zip file
             ZipFile.ExtractToDirectory(zipPath, tempFolder);
-
-            // Get all CSV files inside
             string[] csvFiles = Directory.GetFiles(tempFolder, "*.csv", System.IO.SearchOption.AllDirectories);
 
-            if(csvFiles.Length == 0)
+            if (csvFiles.Length == 0)
                 return;
 
-            foreach(string csvFile in csvFiles)
+            foreach (string csvFile in csvFiles)
             {
                 string fileName = Path.GetFileNameWithoutExtension(csvFile);
-                if(fileName == "watched")
-                    user.WatchEvents = ExtractWatchEventsFromFile(csvFile);
+
+                switch (fileName)
+                {
+                    case "watched":
+                        user.WatchEvents = ExtractEventsFromFile<LetterboxdWatchEvent>(csvFile);
+                        break;
+                    case "watchlist":
+                        user.Watchlist = ExtractEventsFromFile<LetterboxdWatchlistEvent>(csvFile);
+                        break;
+                }
             }
             Debug.WriteLine(user);
-            foreach (KeyValuePair<int, int> kvp in user.GetMovieCountPerReleaseYear())
-            {
-                int key = kvp.Key;
-                int value = kvp.Value;
-                Debug.WriteLine($"Year: {key}, Count: {value}");
-            }
         }
 
         private LetterboxdUser CreateLetterboxdUserFromZipName(string fileName)
@@ -150,36 +148,33 @@ namespace LetterboxdComparer
             return new LetterboxdUser(userName, exportTime);
         }
 
-        private List<LetterboxdWatchEvent> ExtractWatchEventsFromFile(string filePath)
+        private List<T> ExtractEventsFromFile<T>(string filePath)
         {
-            List<LetterboxdWatchEvent> watchEvents = new List<LetterboxdWatchEvent>();
-
-            using(TextFieldParser parser = new TextFieldParser(filePath))
+            List<T> entries = new List<T>();
+            using (TextFieldParser parser = new TextFieldParser(filePath))
             {
                 parser.TextFieldType = FieldType.Delimited;
                 parser.SetDelimiters(",");
                 parser.HasFieldsEnclosedInQuotes = true;
-
                 string[] columnNames = parser.ReadFields();
-                if(columnNames.Length != 4 || columnNames[0] != "Date" || columnNames[1] != "Name" || columnNames[2] != "Year" || columnNames[3] != "Letterboxd URI")
-                    throw new InvalidDataException("CSV file has invalid header for watched movies!");
+                if (columnNames.Length != 4 || columnNames[0] != "Date" || columnNames[1] != "Name" || columnNames[2] != "Year" || columnNames[3] != "Letterboxd URI")
+                    throw new InvalidDataException("CSV file has invalid header for watchlist movies!");
 
                 while (!parser.EndOfData)
                 {
                     string[] fields = parser.ReadFields();
 
-                    DateTime watchDate = DateTime.ParseExact(fields[0], "yyyy-MM-dd", CultureInfo.InvariantCulture);
+                    DateTime addedDate = DateTime.ParseExact(fields[0], "yyyy-MM-dd", CultureInfo.InvariantCulture);
                     string movieName = fields[1];
                     int releaseYear = int.Parse(fields[2]);
                     string uuid = new Uri(fields[3]).Segments.Last(); //csv provides the format https://boxd.it/<uuid> -> extract id
 
                     LetterboxdMovie movie = LetterboxdMovieStore.Instance.CreateMovie(movieName, releaseYear, uuid);
-                    LetterboxdWatchEvent watchEvent = new LetterboxdWatchEvent(watchDate, movie);
-                    watchEvents.Add(watchEvent);
+                    T eventElement = (T)Activator.CreateInstance(typeof(T), addedDate, movie);
+                    entries.Add(eventElement);
                 }
             }
-
-            return watchEvents;
+            return entries;
         }
     }
 }

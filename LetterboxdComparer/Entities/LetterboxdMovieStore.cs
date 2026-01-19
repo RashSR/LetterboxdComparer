@@ -38,8 +38,9 @@ namespace LetterboxdComparer.Entities
             return existingMovie;
         }
 
+        public override string ToString()
+        {
+            return $"LetterboxdMovieStore: {_movieDictionary.Count} movies stored.";
+        }
     }
-
-
-
 }

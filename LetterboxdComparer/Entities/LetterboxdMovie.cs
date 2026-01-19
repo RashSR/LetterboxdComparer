@@ -1,5 +1,5 @@
 ﻿
-namespace LetterboxdComparer
+namespace LetterboxdComparer.Entities
 {
     public class LetterboxdMovie
     {

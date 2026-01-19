@@ -1,7 +1,8 @@
-﻿using System;
+﻿using LetterboxdComparer.Entities;
+using System;
 using System.Collections.Generic;
 
-namespace LetterboxdComparer
+namespace LetterboxdComparer.Entities
 {
     public class LetterboxdUser
     {
@@ -11,6 +12,7 @@ namespace LetterboxdComparer
             _userName = userName;
             _exportTime = exportTime;
             _watchEvents = new List<LetterboxdWatchEvent>();
+            _watchlist = new List<LetterboxdWatchlistEvent>();
         }
 
         #endregion
@@ -37,6 +39,13 @@ namespace LetterboxdComparer
             set { _watchEvents = value; }
         }
 
+        public List<LetterboxdWatchlistEvent> _watchlist;
+        public List<LetterboxdWatchlistEvent> Watchlist
+        {
+            get { return _watchlist; }
+            set { _watchlist = value; }
+        }
+
         #endregion
 
         #region Methods
@@ -58,7 +67,7 @@ namespace LetterboxdComparer
 
         public override string ToString()
         {
-            return $"{UserName} (Exported on {ExportTime:yyyy-MM-dd HH:mm}), WatchEvents: {WatchEvents.Count}";
+            return $"{UserName} (Exported on {ExportTime:yyyy-MM-dd HH:mm}), WatchEvents: {WatchEvents.Count}, WatchList: {Watchlist.Count}";
         }
         #endregion
 

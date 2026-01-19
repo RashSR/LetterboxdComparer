@@ -1,7 +1,7 @@
 ﻿
 using System;
 
-namespace LetterboxdComparer
+namespace LetterboxdComparer.Entities
 {
     public class LetterboxdWatchEvent
     {
