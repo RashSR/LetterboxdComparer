@@ -2,7 +2,7 @@
 {
     public class MoviePerYear
     {
-        public string Year { get; set; }
+        public int Year { get; set; }
         public int Count { get; set; }
     }
 }

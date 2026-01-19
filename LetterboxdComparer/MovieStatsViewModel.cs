@@ -15,86 +15,16 @@ using System.Windows.Input;
 
 namespace LetterboxdComparer
 {
-    public class MovieStatsViewModel : INotifyPropertyChanged
+    public class MovieStatsViewModel
     {
         public ObservableCollection<MoviePerYear> YearCounts { get; } = new ObservableCollection<MoviePerYear>();
-        public DataView DataTableView { get; private set; }
 
-        public ICommand PickCsvCommand { get; }
         public ICommand PickZipCommand { get; }
 
         public MovieStatsViewModel()
         {
-            PickCsvCommand = new RelayCommand(_ => PickAndLoadCsv());
             PickZipCommand = new RelayCommand(_ => PickAndLoadZip());
         }
-
-        private void PickAndLoadCsv()
-        {
-            OpenFileDialog dlg = new OpenFileDialog
-            {
-                Title = "Select CSV File",
-                Filter = "CSV Files (*.csv)|*.csv|All Files (*.*)|*.*"
-            };
-
-            if (dlg.ShowDialog() != true)
-                return;
-
-            DataTable dt = LoadCsv(dlg.FileName);
-            DataTableView = dt.DefaultView;
-            OnPropertyChanged(nameof(DataTableView));
-
-            UpdateYearCounts(dt);
-        }
-
-        private DataTable LoadCsv(string filePath)
-        {
-            DataTable dt = new DataTable();
-
-            using (TextFieldParser parser = new TextFieldParser(filePath))
-            {
-                parser.TextFieldType = FieldType.Delimited;
-                parser.SetDelimiters(",");
-                parser.HasFieldsEnclosedInQuotes = true;
-
-                //Columns
-                if (!parser.EndOfData)
-                {
-                    string[] columnNames = parser.ReadFields();
-                    foreach (var h in columnNames)
-                        dt.Columns.Add(h);
-                }
-
-                //Rows
-                while (!parser.EndOfData)
-                {
-                    var fields = parser.ReadFields();
-                    dt.Rows.Add(fields);
-                }
-            }
-
-            if (!dt.Columns.Contains("Year"))
-                throw new InvalidDataException("CSV requires column: 'Year'.");
-
-            return dt;
-        }
-
-        private void UpdateYearCounts(DataTable dt)
-        {
-            YearCounts.Clear();
-
-            var counts = dt.AsEnumerable()
-                .Where(r => !string.IsNullOrWhiteSpace(r["Year"].ToString()))
-                .GroupBy(r => r["Year"].ToString())
-                .OrderBy(g => g.Key)
-                .Select(g => new MoviePerYear { Year = g.Key, Count = g.Count() });
-
-            foreach (var item in counts)
-                YearCounts.Add(item);
-        }
-
-        public event PropertyChangedEventHandler PropertyChanged;
-        private void OnPropertyChanged(string name) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
 
         private void PickAndLoadZip()
         {
@@ -116,10 +46,10 @@ namespace LetterboxdComparer
             ZipFile.ExtractToDirectory(zipPath, tempFolder);
             string[] csvFiles = Directory.GetFiles(tempFolder, "*.csv", System.IO.SearchOption.AllDirectories);
 
-            if (csvFiles.Length == 0)
+            if(csvFiles.Length == 0)
                 return;
 
-            foreach (string csvFile in csvFiles)
+            foreach(string csvFile in csvFiles)
             {
                 string fileName = Path.GetFileNameWithoutExtension(csvFile);
 
@@ -133,6 +63,7 @@ namespace LetterboxdComparer
                         break;
                 }
             }
+            UpdateYearCountsFromUser(user);
             Debug.WriteLine(user);
         }
 
@@ -150,7 +81,7 @@ namespace LetterboxdComparer
 
         private List<T> ExtractEventsFromFile<T>(string filePath)
         {
-            List<T> entries = new List<T>();
+            List<T> eventEntries = new List<T>();
             using (TextFieldParser parser = new TextFieldParser(filePath))
             {
                 parser.TextFieldType = FieldType.Delimited;
@@ -171,10 +102,28 @@ namespace LetterboxdComparer
 
                     LetterboxdMovie movie = LetterboxdMovieStore.Instance.CreateMovie(movieName, releaseYear, uuid);
                     T eventElement = (T)Activator.CreateInstance(typeof(T), addedDate, movie);
-                    entries.Add(eventElement);
+                    eventEntries.Add(eventElement);
                 }
             }
-            return entries;
+            return eventEntries;
         }
+
+        private void UpdateYearCountsFromUser(LetterboxdUser user)
+        {
+            YearCounts.Clear();
+
+            SortedDictionary<int, int> counts =
+                user.GetMovieCountPerReleaseYear();
+
+            foreach (KeyValuePair<int,int> kv in counts)
+            {
+                YearCounts.Add(new MoviePerYear
+                {
+                    Year = kv.Key,
+                    Count = kv.Value
+                });
+            }
+        }
+
     }
 }
