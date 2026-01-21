@@ -53,13 +53,13 @@
     <Reference Include="PresentationFramework" />
   </ItemGroup>
   <ItemGroup>
-    <ApplicationDefinition Include="App.xaml">
+    <ApplicationDefinition Include="Views\App.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="AppView.cs" />
+    <Compile Include="ViewRelated\AppView.cs" />
     <Compile Include="Converter\CountToHeightConverter.cs" />
-    <Compile Include="DetailsView.xaml.cs">
+    <Compile Include="Views\DetailsView.xaml.cs">
       <DependentUpon>DetailsView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Entities\LetterboxdMovie.cs" />
@@ -68,27 +68,27 @@
     <Compile Include="Entities\LetterboxdWatchEvent.cs" />
     <Compile Include="Entities\LetterboxdWatchlistEvent.cs" />
     <Compile Include="MovieStatsViewModel.cs" />
-    <Compile Include="RelayCommand.cs" />
-    <Compile Include="StatisticsView.xaml.cs">
+    <Compile Include="ViewRelated\RelayCommand.cs" />
+    <Compile Include="Views\StatisticsView.xaml.cs">
       <DependentUpon>StatisticsView.xaml</DependentUpon>
     </Compile>
-    <Page Include="DetailsView.xaml">
+    <Page Include="Views\DetailsView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="MainWindow.xaml">
+    <Page Include="Views\MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Compile Include="App.xaml.cs">
+    <Compile Include="Views\App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="MainWindow.xaml.cs">
+    <Compile Include="Views\MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Page Include="StatisticsView.xaml">
+    <Page Include="Views\StatisticsView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
