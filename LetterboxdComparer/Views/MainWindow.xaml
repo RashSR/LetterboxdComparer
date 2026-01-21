@@ -1,14 +1,13 @@
-﻿<Window
-    x:Class="LetterboxdComparer.MainWindow"
-    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:local="clr-namespace:LetterboxdComparer"
-    Title="Letterboxd Comparer"
-    Width="900"
-    Height="500">
+﻿<Window x:Class="LetterboxdComparer.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:LetterboxdComparer"
+        Title="Letterboxd Comparer"
+        Width="900"
+        Height="500">
 
     <Window.DataContext>
-        <local:MovieStatsViewModel/>
+        <local:MainWindowPresenter/>
     </Window.DataContext>
 
     <Grid>
@@ -22,7 +21,6 @@
             <Button Content="Statistics"
                     Command="{Binding ShowStatisticsCommand}"
                     Margin="10"/>
-
             <Button Content="Details"
                     Command="{Binding ShowDetailsCommand}"
                     Margin="10"/>
@@ -33,7 +31,7 @@
             <ContentControl.Style>
                 <Style TargetType="ContentControl">
 
-                    <!-- default -->
+                    <!-- default view -->
                     <Setter Property="Content">
                         <Setter.Value>
                             <local:StatisticsView/>
@@ -41,7 +39,6 @@
                     </Setter>
 
                     <Style.Triggers>
-
                         <DataTrigger Binding="{Binding CurrentView}"
                                      Value="{x:Static local:AppView.Statistics}">
                             <Setter Property="Content">
@@ -59,8 +56,8 @@
                                 </Setter.Value>
                             </Setter>
                         </DataTrigger>
-
                     </Style.Triggers>
+
                 </Style>
             </ContentControl.Style>
         </ContentControl>

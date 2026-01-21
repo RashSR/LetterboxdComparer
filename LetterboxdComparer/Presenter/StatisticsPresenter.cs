@@ -1,4 +1,5 @@
-﻿using LetterboxdComparer.Entities;
+﻿
+using LetterboxdComparer.Entities;
 using Microsoft.VisualBasic.FileIO;
 using Microsoft.Win32;
 using System;
@@ -13,29 +14,8 @@ using System.Windows.Input;
 
 namespace LetterboxdComparer
 {
-    public class MovieStatsViewModel : INotifyPropertyChanged
+    public class StatisticsPresenter : INotifyPropertyChanged
     {
-        public event PropertyChangedEventHandler PropertyChanged;
-        private void OnPropertyChanged(string name) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
-
-        #region Navigation
-
-        private AppView _currentView = AppView.Statistics;
-        public AppView CurrentView
-        {
-            get => _currentView;
-            set
-            {
-                _currentView = value;
-                OnPropertyChanged(nameof(CurrentView));
-            }
-        }
-
-        public ICommand ShowStatisticsCommand { get; }
-        public ICommand ShowDetailsCommand { get; }
-
-        #endregion
-
         #region Data
 
         private LetterboxdUser _loadedUser;
@@ -53,19 +33,12 @@ namespace LetterboxdComparer
         public IEnumerable<KeyValuePair<int, int>> MovieCountsPerYear => LoadedUser?.GetMovieCountPerReleaseYear();
 
         #endregion
-
-        #region Commands
-
         public ICommand PickZipCommand { get; }
 
-        public MovieStatsViewModel()
+        public StatisticsPresenter()
         {
             PickZipCommand = new RelayCommand(_ => PickAndLoadZip());
-            ShowStatisticsCommand = new RelayCommand(_ => CurrentView = AppView.Statistics);
-            ShowDetailsCommand = new RelayCommand(_ => CurrentView = AppView.Details);
         }
-
-        #endregion
 
         #region ZIP Loading
 
@@ -138,7 +111,7 @@ namespace LetterboxdComparer
                 if (columnNames.Length != 4 || columnNames[0] != "Date" || columnNames[1] != "Name" || columnNames[2] != "Year" || columnNames[3] != "Letterboxd URI")
                     throw new InvalidDataException("CSV file has invalid header for watchlist movies!");
 
-                while (!parser.EndOfData)
+                while(!parser.EndOfData)
                 {
                     string[] fields = parser.ReadFields();
 
@@ -154,6 +127,9 @@ namespace LetterboxdComparer
             }
             return eventEntries;
         }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+        private void OnPropertyChanged(string name) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
 
         #endregion
     }

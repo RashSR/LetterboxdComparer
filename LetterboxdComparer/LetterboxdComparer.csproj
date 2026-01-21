@@ -57,6 +57,8 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Presenter\DetailsPresenter.cs" />
+    <Compile Include="Presenter\StatisticsPresenter.cs" />
     <Compile Include="ViewRelated\AppView.cs" />
     <Compile Include="Converter\CountToHeightConverter.cs" />
     <Compile Include="Views\DetailsView.xaml.cs">
@@ -67,7 +69,7 @@
     <Compile Include="Entities\LetterboxdUser.cs" />
     <Compile Include="Entities\LetterboxdWatchEvent.cs" />
     <Compile Include="Entities\LetterboxdWatchlistEvent.cs" />
-    <Compile Include="MovieStatsViewModel.cs" />
+    <Compile Include="Presenter\MainWindowPresenter.cs" />
     <Compile Include="ViewRelated\RelayCommand.cs" />
     <Compile Include="Views\StatisticsView.xaml.cs">
       <DependentUpon>StatisticsView.xaml</DependentUpon>
@@ -119,5 +121,6 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
