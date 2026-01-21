@@ -18,7 +18,25 @@ namespace LetterboxdComparer
         public event PropertyChangedEventHandler PropertyChanged;
         private void OnPropertyChanged(string name) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
 
-        #region Properties
+        #region Navigation
+
+        private AppView _currentView = AppView.Statistics;
+        public AppView CurrentView
+        {
+            get => _currentView;
+            set
+            {
+                _currentView = value;
+                OnPropertyChanged(nameof(CurrentView));
+            }
+        }
+
+        public ICommand ShowStatisticsCommand { get; }
+        public ICommand ShowDetailsCommand { get; }
+
+        #endregion
+
+        #region Data
 
         private LetterboxdUser _loadedUser;
         public LetterboxdUser LoadedUser
@@ -32,17 +50,24 @@ namespace LetterboxdComparer
             }
         }
 
-        #endregion
-
         public IEnumerable<KeyValuePair<int, int>> MovieCountsPerYear => LoadedUser?.GetMovieCountPerReleaseYear();
 
+        #endregion
+
         #region Commands
+
         public ICommand PickZipCommand { get; }
 
         public MovieStatsViewModel()
         {
             PickZipCommand = new RelayCommand(_ => PickAndLoadZip());
+            ShowStatisticsCommand = new RelayCommand(_ => CurrentView = AppView.Statistics);
+            ShowDetailsCommand = new RelayCommand(_ => CurrentView = AppView.Details);
         }
+
+        #endregion
+
+        #region ZIP Loading
 
         private void PickAndLoadZip()
         {
@@ -52,7 +77,7 @@ namespace LetterboxdComparer
                 Filter = "ZIP Files (*.zip)|*.zip"
             };
 
-            if(dlg.ShowDialog() != true)
+            if (dlg.ShowDialog() != true)
                 return;
 
             string zipPath = dlg.FileName;
@@ -64,10 +89,10 @@ namespace LetterboxdComparer
             ZipFile.ExtractToDirectory(zipPath, tempFolder);
             string[] csvFiles = Directory.GetFiles(tempFolder, "*.csv", System.IO.SearchOption.AllDirectories);
 
-            if(csvFiles.Length == 0)
+            if (csvFiles.Length == 0)
                 return;
 
-            foreach(string csvFile in csvFiles)
+            foreach (string csvFile in csvFiles)
             {
                 string fileName = Path.GetFileNameWithoutExtension(csvFile);
 
@@ -84,6 +109,10 @@ namespace LetterboxdComparer
             OnPropertyChanged(nameof(MovieCountsPerYear));
             Debug.WriteLine(LoadedUser);
         }
+
+        #endregion
+
+        #region Helpers
 
         private LetterboxdUser CreateLetterboxdUserFromZipName(string fileName)
         {

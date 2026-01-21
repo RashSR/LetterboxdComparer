@@ -4,6 +4,6 @@
              xmlns:local="clr-namespace:LetterboxdComparer"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
-         
+        <local:CountToHeightConverter x:Key="CountToHeightConverter"/>
     </Application.Resources>
 </Application>
