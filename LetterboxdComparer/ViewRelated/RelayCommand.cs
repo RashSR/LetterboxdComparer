@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Windows.Input;
 
-namespace LetterboxdComparer
+namespace LetterboxdComparer.ViewRelated
 {
     public class RelayCommand : ICommand
     {

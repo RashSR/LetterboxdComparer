@@ -1,7 +1,7 @@
 ﻿using LetterboxdComparer.Presenter;
 using System.Windows.Controls;
 
-namespace LetterboxdComparer
+namespace LetterboxdComparer.Views
 {
     /// <summary>
     /// Interaction logic for StatisticsView.xaml

@@ -1,5 +1,5 @@
 ﻿
-namespace LetterboxdComparer
+namespace LetterboxdComparer.ViewRelated
 {
     public enum AppView
     {
