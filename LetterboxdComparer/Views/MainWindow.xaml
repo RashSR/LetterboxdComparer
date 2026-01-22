@@ -1,7 +1,7 @@
 ﻿<Window x:Class="LetterboxdComparer.Views.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:local="clr-namespace:LetterboxdComparer.Views" 
+        xmlns:localViews="clr-namespace:LetterboxdComparer.Views" 
         xmlns:localPresenter="clr-namespace:LetterboxdComparer.Presenter"
         xmlns:localViewRelated="clr-namespace:LetterboxdComparer.ViewRelated"
         Title="Letterboxd Comparer"
@@ -20,12 +20,9 @@
 
         <!-- LEFT MENU -->
         <StackPanel Background="#2D2D30">
-            <Button Content="Statistics"
-                    Command="{Binding ShowStatisticsCommand}"
-                    Margin="10"/>
-            <Button Content="Details"
-                    Command="{Binding ShowDetailsCommand}"
-                    Margin="10"/>
+            <Button Content="Statistics" Command="{Binding ShowStatisticsCommand}" Margin="10"/>
+            <Button Content="Details" Command="{Binding ShowDetailsCommand}" Margin="10"/>
+            <Button Content="MovieStore" Command="{Binding ShowMovieStoreCommand}" Margin="10"/>
         </StackPanel>
 
         <!-- CONTENT -->
@@ -36,7 +33,7 @@
                     <!-- default view -->
                     <Setter Property="Content">
                         <Setter.Value>
-                            <local:StatisticsView/>
+                            <localViews:StatisticsView/>
                         </Setter.Value>
                     </Setter>
 
@@ -45,7 +42,7 @@
                                      Value="{x:Static localViewRelated:AppView.Statistics}">
                             <Setter Property="Content">
                                 <Setter.Value>
-                                    <local:StatisticsView/>
+                                    <localViews:StatisticsView/>
                                 </Setter.Value>
                             </Setter>
                         </DataTrigger>
@@ -54,7 +51,15 @@
                                      Value="{x:Static localViewRelated:AppView.Details}">
                             <Setter Property="Content">
                                 <Setter.Value>
-                                    <local:DetailsView/>
+                                    <localViews:DetailsView/>
+                                </Setter.Value>
+                            </Setter>
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding CurrentView}"
+                             Value="{x:Static localViewRelated:AppView.MovieStore}">
+                            <Setter Property="Content">
+                                <Setter.Value>
+                                    <localViews:LetterboxdMovieStoreView/>
                                 </Setter.Value>
                             </Setter>
                         </DataTrigger>
