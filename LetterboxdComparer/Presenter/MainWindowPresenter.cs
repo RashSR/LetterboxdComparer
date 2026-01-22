@@ -1,7 +1,7 @@
 ﻿using LetterboxdComparer.ViewRelated;
 using System.Windows.Input;
 
-namespace LetterboxdComparer
+namespace LetterboxdComparer.Presenter
 {
     public class MainWindowPresenter : Notifier
     {

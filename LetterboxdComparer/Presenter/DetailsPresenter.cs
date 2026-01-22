@@ -1,6 +1,6 @@
 ﻿using LetterboxdComparer.ViewRelated;
 
-namespace LetterboxdComparer
+namespace LetterboxdComparer.Presenter
 {
     public class DetailsPresenter : Notifier
     {

@@ -11,7 +11,7 @@ using System.IO.Compression;
 using System.Linq;
 using System.Windows.Input;
 
-namespace LetterboxdComparer
+namespace LetterboxdComparer.Presenter
 {
     public class StatisticsPresenter : Notifier
     {

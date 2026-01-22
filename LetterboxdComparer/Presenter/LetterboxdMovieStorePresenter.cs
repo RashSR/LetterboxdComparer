@@ -2,7 +2,10 @@
 
 namespace LetterboxdComparer.Presenter
 {
-    internal class LetterboxdMovieStorePresenter : Notifier
+    public class LetterboxdMovieStorePresenter : Notifier
     {
+        public LetterboxdMovieStorePresenter()
+        {
+        }
     }
 }
