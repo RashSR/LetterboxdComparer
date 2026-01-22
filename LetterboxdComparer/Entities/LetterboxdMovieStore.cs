@@ -21,7 +21,7 @@ namespace LetterboxdComparer.Entities
             }
         }
 
-        public LetterboxdMovie CreateMovie(string movieName, int releaseYear, string uuid)
+        public LetterboxdMovie CreateOrGetMovie(string movieName, int releaseYear, string uuid)
         {
             _movieDictionary.TryGetValue(uuid, out LetterboxdMovie existingMovie);
             if(existingMovie != null)

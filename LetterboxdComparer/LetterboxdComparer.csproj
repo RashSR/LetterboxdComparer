@@ -57,6 +57,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Entities\LetterboxdRateEvent.cs" />
     <Compile Include="Presenter\DetailsPresenter.cs" />
     <Compile Include="Presenter\StatisticsPresenter.cs" />
     <Compile Include="ViewRelated\AppView.cs" />

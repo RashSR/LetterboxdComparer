@@ -13,6 +13,7 @@ namespace LetterboxdComparer.Entities
             _exportTime = exportTime;
             _watchEvents = new List<LetterboxdWatchEvent>();
             _watchlist = new List<LetterboxdWatchlistEvent>();
+            _movieRatings = new List<LetterboxdRateEvent>();
         }
 
         #endregion
@@ -46,6 +47,12 @@ namespace LetterboxdComparer.Entities
             set { _watchlist = value; }
         }
 
+        private List<LetterboxdRateEvent> _movieRatings;
+        public List<LetterboxdRateEvent> MovieRatings
+        {
+            get { return _movieRatings; }
+            set { _movieRatings = value; }
+        }
         #endregion
 
         #region Methods
@@ -65,9 +72,29 @@ namespace LetterboxdComparer.Entities
             return moviesPerYear;
         }
 
+        public float GetAverageRating()
+        {
+            if(MovieRatings.Count == 0)
+                return 0.0f;
+
+            int totalRating = 0;
+            foreach(LetterboxdRateEvent rateEvent in MovieRatings)
+                totalRating += rateEvent.Rating;
+
+            return (float)totalRating / MovieRatings.Count;
+        }
+
+        public float GetRateToWatchRatio()
+        {
+            if(WatchEvents.Count == 0)
+                return 0.0f;
+
+            return (float)MovieRatings.Count / WatchEvents.Count;
+        }
+
         public override string ToString()
         {
-            return $"{UserName} (Exported on {ExportTime:yyyy-MM-dd HH:mm}), WatchEvents: {WatchEvents.Count}, WatchList: {Watchlist.Count}";
+            return $"{UserName} (Exported on {ExportTime:yyyy-MM-dd HH:mm}), WatchEvents: {WatchEvents.Count}, Ratings: {MovieRatings.Count}, WatchList: {Watchlist.Count}";
         }
         #endregion
 

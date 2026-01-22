@@ -62,7 +62,7 @@ namespace LetterboxdComparer
             ZipFile.ExtractToDirectory(zipPath, tempFolder);
             string[] csvFiles = Directory.GetFiles(tempFolder, "*.csv", System.IO.SearchOption.AllDirectories);
 
-            if (csvFiles.Length == 0)
+            if(csvFiles.Length == 0)
                 return;
 
             foreach (string csvFile in csvFiles)
@@ -77,10 +77,15 @@ namespace LetterboxdComparer
                     case "watchlist":
                         LoadedUser.Watchlist = ExtractEventsFromFile<LetterboxdWatchlistEvent>(csvFile);
                         break;
+                    case "ratings":
+                        LoadedUser.MovieRatings = ExtractEventsFromFile<LetterboxdRateEvent>(csvFile, hasRating: true);
+                        break;
                 }
             }
             OnPropertyChanged(nameof(MovieCountsPerYear));
             Debug.WriteLine(LoadedUser);
+            Debug.WriteLine("Average Rating: " + LoadedUser.GetAverageRating()/2);
+            Debug.WriteLine("RateToWatchRatio: " + LoadedUser.GetRateToWatchRatio()*100 + "%");
         }
 
         #endregion
@@ -99,7 +104,7 @@ namespace LetterboxdComparer
             return new LetterboxdUser(userName, exportTime);
         }
 
-        private List<T> ExtractEventsFromFile<T>(string filePath)
+        private List<T> ExtractEventsFromFile<T>(string filePath, bool hasRating = false)
         {
             List<T> eventEntries = new List<T>();
             using (TextFieldParser parser = new TextFieldParser(filePath))
@@ -108,10 +113,13 @@ namespace LetterboxdComparer
                 parser.SetDelimiters(",");
                 parser.HasFieldsEnclosedInQuotes = true;
                 string[] columnNames = parser.ReadFields();
-                if (columnNames.Length != 4 || columnNames[0] != "Date" || columnNames[1] != "Name" || columnNames[2] != "Year" || columnNames[3] != "Letterboxd URI")
-                    throw new InvalidDataException("CSV file has invalid header for watchlist movies!");
 
-                while(!parser.EndOfData)
+                if(!hasRating && (columnNames.Length != 4 || columnNames[0] != "Date" || columnNames[1] != "Name" || columnNames[2] != "Year" || columnNames[3] != "Letterboxd URI"))
+                    throw new InvalidDataException("CSV file has invalid header for watchlist movies!");
+                if(hasRating && (columnNames.Length != 5 || columnNames[0] != "Date" || columnNames[1] != "Name" || columnNames[2] != "Year" || columnNames[3] != "Letterboxd URI" || columnNames[4] != "Rating"))
+                    throw new InvalidDataException("CSV file has invalid header for rated movies!");
+
+                while (!parser.EndOfData)
                 {
                     string[] fields = parser.ReadFields();
 
@@ -120,8 +128,16 @@ namespace LetterboxdComparer
                     int releaseYear = int.Parse(fields[2]);
                     string uuid = new Uri(fields[3]).Segments.Last(); //csv provides the format https://boxd.it/<uuid> -> extract id
 
-                    LetterboxdMovie movie = LetterboxdMovieStore.Instance.CreateMovie(movieName, releaseYear, uuid);
-                    T eventElement = (T)Activator.CreateInstance(typeof(T), addedDate, movie);
+                    LetterboxdMovie movie = LetterboxdMovieStore.Instance.CreateOrGetMovie(movieName, releaseYear, uuid);
+                    T eventElement;
+                    if(hasRating)
+                    {
+                        int rating = (int)(float.Parse(fields[4]) * 2); //convert star rating from 0.5 steps to full integer steps
+                        eventElement = (T)Activator.CreateInstance(typeof(T), addedDate, movie, rating);
+                    }
+                    else
+                        eventElement = (T)Activator.CreateInstance(typeof(T), addedDate, movie);
+                    
                     eventEntries.Add(eventElement);
                 }
             }
