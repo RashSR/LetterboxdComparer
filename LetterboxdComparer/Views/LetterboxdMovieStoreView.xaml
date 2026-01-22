@@ -17,9 +17,23 @@
                                     Binding="{Binding ReleaseYear}"
                                     Width="80" />
 
-                <DataGridTextColumn Header="URL"
-                                    Binding="{Binding LetterboxdUrl}"
-                                    Width="200" />
+                <DataGridTemplateColumn Header="URL" Width="200">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBlock TextDecorations="Underline" Foreground="Blue" Cursor="Hand">
+                                <TextBlock.InputBindings>
+                                    <MouseBinding Gesture="LeftClick"
+                                  Command="{Binding DataContext.OpenUrlCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                  CommandParameter="{Binding LetterboxdUrl}" />
+                                </TextBlock.InputBindings>
+                                <TextBlock.Text>
+                                    <Binding Path="LetterboxdUrl"/>
+                                </TextBlock.Text>
+                            </TextBlock>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+
             </DataGrid.Columns>
         </DataGrid>
     </Grid>
