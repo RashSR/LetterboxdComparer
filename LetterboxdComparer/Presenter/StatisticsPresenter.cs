@@ -1,5 +1,4 @@
-﻿
-using LetterboxdComparer.Entities;
+﻿using LetterboxdComparer.Entities;
 using Microsoft.VisualBasic.FileIO;
 using Microsoft.Win32;
 using System;
@@ -50,7 +49,7 @@ namespace LetterboxdComparer
                 Filter = "ZIP Files (*.zip)|*.zip"
             };
 
-            if (dlg.ShowDialog() != true)
+            if(dlg.ShowDialog() != true)
                 return;
 
             string zipPath = dlg.FileName;
@@ -65,11 +64,11 @@ namespace LetterboxdComparer
             if(csvFiles.Length == 0)
                 return;
 
-            foreach (string csvFile in csvFiles)
+            foreach(string csvFile in csvFiles)
             {
                 string fileName = Path.GetFileNameWithoutExtension(csvFile);
 
-                switch (fileName)
+                switch(fileName)
                 {
                     case "watched":
                         LoadedUser.WatchEvents = ExtractEventsFromFile<LetterboxdWatchEvent>(csvFile);
@@ -86,6 +85,7 @@ namespace LetterboxdComparer
             Debug.WriteLine(LoadedUser);
             Debug.WriteLine("Average Rating: " + LoadedUser.GetAverageRating()/2);
             Debug.WriteLine("RateToWatchRatio: " + LoadedUser.GetRateToWatchRatio()*100 + "%");
+            Debug.WriteLine(LetterboxdMovieStore.Instance);
         }
 
         #endregion
@@ -96,7 +96,7 @@ namespace LetterboxdComparer
         {
             //letterboxd forbids user names with dashes -> safe to split like this
             string[] parts = fileName.Split('-');
-            if (parts.Length != 8)
+            if(parts.Length != 8)
                 throw new ArgumentException("Array must have length 8!");
 
             string userName = parts[1];
@@ -107,19 +107,21 @@ namespace LetterboxdComparer
         private List<T> ExtractEventsFromFile<T>(string filePath, bool hasRating = false)
         {
             List<T> eventEntries = new List<T>();
-            using (TextFieldParser parser = new TextFieldParser(filePath))
+            using(TextFieldParser parser = new TextFieldParser(filePath))
             {
                 parser.TextFieldType = FieldType.Delimited;
                 parser.SetDelimiters(",");
                 parser.HasFieldsEnclosedInQuotes = true;
                 string[] columnNames = parser.ReadFields();
 
-                if(!hasRating && (columnNames.Length != 4 || columnNames[0] != "Date" || columnNames[1] != "Name" || columnNames[2] != "Year" || columnNames[3] != "Letterboxd URI"))
+                if(!hasRating && columnNames.Length != 4)
                     throw new InvalidDataException("CSV file has invalid header for watchlist movies!");
-                if(hasRating && (columnNames.Length != 5 || columnNames[0] != "Date" || columnNames[1] != "Name" || columnNames[2] != "Year" || columnNames[3] != "Letterboxd URI" || columnNames[4] != "Rating"))
+                if(hasRating && columnNames.Length != 5 && columnNames[4] != "Rating")
                     throw new InvalidDataException("CSV file has invalid header for rated movies!");
+                if(columnNames[0] != "Date" || columnNames[1] != "Name" || columnNames[2] != "Year" || columnNames[3] != "Letterboxd URI")
+                     throw new InvalidDataException("CSV file has invalid header");
 
-                while (!parser.EndOfData)
+                while(!parser.EndOfData)
                 {
                     string[] fields = parser.ReadFields();
 

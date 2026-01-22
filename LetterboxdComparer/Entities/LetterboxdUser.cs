@@ -1,5 +1,4 @@
-﻿using LetterboxdComparer.Entities;
-using System;
+﻿using System;
 using System.Collections.Generic;
 
 namespace LetterboxdComparer.Entities
