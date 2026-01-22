@@ -5,8 +5,8 @@ namespace LetterboxdComparer.Entities
 {
     public sealed class LetterboxdMovieStore
     {
-        private static LetterboxdMovieStore instance = null;
-        private readonly Dictionary<string, LetterboxdMovie> _movieDictionary = new Dictionary<string, LetterboxdMovie>();
+        #region Constructor 
+
         private LetterboxdMovieStore()
         {
         }
@@ -21,6 +21,23 @@ namespace LetterboxdComparer.Entities
             }
         }
 
+        #endregion
+
+        #region Fields
+        private static LetterboxdMovieStore instance = null;
+        private readonly Dictionary<string, LetterboxdMovie> _movieDictionary = new Dictionary<string, LetterboxdMovie>();
+        
+        public List<LetterboxdMovie> StoredMovies
+        {
+            get
+            {
+                return new List<LetterboxdMovie>(_movieDictionary.Values);
+            }
+        }
+
+        #endregion
+
+        #region Methods
         public LetterboxdMovie CreateOrGetMovie(string movieName, int releaseYear, string uuid)
         {
             _movieDictionary.TryGetValue(uuid, out LetterboxdMovie existingMovie);
@@ -42,5 +59,7 @@ namespace LetterboxdComparer.Entities
         {
             return $"LetterboxdMovieStore: {_movieDictionary.Count} movies stored.";
         }
+
+        #endregion
     }
 }

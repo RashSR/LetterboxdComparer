@@ -1,5 +1,4 @@
 ﻿using LetterboxdComparer.ViewRelated;
-using System.Diagnostics;
 using System.Windows.Input;
 
 namespace LetterboxdComparer.Presenter
@@ -14,7 +13,6 @@ namespace LetterboxdComparer.Presenter
             get => _currentView;
             set
             {
-                Debug.WriteLine(value);
                 _currentView = value;
                 OnPropertyChanged(nameof(CurrentView));
             }
