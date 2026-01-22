@@ -1,15 +1,13 @@
-﻿using LetterboxdComparer.Entities;
-using System.ComponentModel;
+﻿using LetterboxdComparer.ViewRelated;
 
 namespace LetterboxdComparer
 {
-    public class DetailsPresenter : INotifyPropertyChanged
+    public class DetailsPresenter : Notifier
     {
-        // Handle watchlist or other details
-        public LetterboxdUser LoadedUser { get; private set; }
+        public DetailsPresenter()
+        {
+        }
 
-        public event PropertyChangedEventHandler PropertyChanged;
-        private void OnPropertyChanged(string name) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
     }
 
 }

@@ -1,9 +1,9 @@
 ﻿using LetterboxdComparer.Entities;
+using LetterboxdComparer.ViewRelated;
 using Microsoft.VisualBasic.FileIO;
 using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
@@ -13,7 +13,7 @@ using System.Windows.Input;
 
 namespace LetterboxdComparer
 {
-    public class StatisticsPresenter : INotifyPropertyChanged
+    public class StatisticsPresenter : Notifier
     {
         #region Data
 
@@ -145,9 +145,6 @@ namespace LetterboxdComparer
             }
             return eventEntries;
         }
-
-        public event PropertyChangedEventHandler PropertyChanged;
-        private void OnPropertyChanged(string name) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
 
         #endregion
     }

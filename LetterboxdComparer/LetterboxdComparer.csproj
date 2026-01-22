@@ -62,6 +62,7 @@
     <Compile Include="Presenter\StatisticsPresenter.cs" />
     <Compile Include="ViewRelated\AppView.cs" />
     <Compile Include="Converter\CountToHeightConverter.cs" />
+    <Compile Include="ViewRelated\Notifier.cs" />
     <Compile Include="Views\DetailsView.xaml.cs">
       <DependentUpon>DetailsView.xaml</DependentUpon>
     </Compile>

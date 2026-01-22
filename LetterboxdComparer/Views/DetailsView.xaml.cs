@@ -9,8 +9,8 @@ namespace LetterboxdComparer
     {
         public DetailsView()
         {
+            DataContext = new DetailsPresenter();
             InitializeComponent();
-            this.DataContext = new DetailsPresenter();
         }
     }
 }

@@ -1,13 +1,10 @@
-﻿using System.ComponentModel;
+﻿using LetterboxdComparer.ViewRelated;
 using System.Windows.Input;
 
 namespace LetterboxdComparer
 {
-    public class MainWindowPresenter : INotifyPropertyChanged
+    public class MainWindowPresenter : Notifier
     {
-        public event PropertyChangedEventHandler PropertyChanged;
-        private void OnPropertyChanged(string name) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
-
         #region Navigation
 
         private AppView _currentView = AppView.Statistics;
