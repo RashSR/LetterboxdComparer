@@ -16,7 +16,7 @@
                        FontWeight="Bold"
                        Margin="0,10,0,5"/>
 
-            <ScrollViewer HorizontalScrollBarVisibility="Auto" Height="300">
+            <ScrollViewer HorizontalScrollBarVisibility="Auto" Height="465">
                 <ItemsControl ItemsSource="{Binding MovieCountsPerYear}">
                         <ItemsControl.ItemsPanel>
                             <ItemsPanelTemplate>

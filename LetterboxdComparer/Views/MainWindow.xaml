@@ -6,7 +6,7 @@
         xmlns:localViewRelated="clr-namespace:LetterboxdComparer.ViewRelated"
         Title="Letterboxd Comparer"
         Width="900"
-        Height="500">
+        Height="600">
 
     <Window.DataContext>
         <localPresenter:MainWindowPresenter/>
