@@ -17,10 +17,6 @@
                                     Binding="{Binding ReleaseYear}"
                                     Width="80" />
 
-                <DataGridTextColumn Header="UUID"
-                                    Binding="{Binding Uuid}"
-                                    Width="150" />
-
                 <DataGridTextColumn Header="URL"
                                     Binding="{Binding LetterboxdUrl}"
                                     Width="200" />
