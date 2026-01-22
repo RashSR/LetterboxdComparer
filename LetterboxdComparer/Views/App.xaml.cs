@@ -1,6 +1,6 @@
 ﻿using System.Windows;
 
-namespace LetterboxdComparer
+namespace LetterboxdComparer.Views
 {
     /// <summary>
     /// Interaktionslogik für "App.xaml"

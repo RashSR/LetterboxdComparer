@@ -1,6 +1,6 @@
 ﻿using System.Windows;
 
-namespace LetterboxdComparer
+namespace LetterboxdComparer.Views
 {
     public partial class MainWindow : Window
     {
