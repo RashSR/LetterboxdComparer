@@ -15,7 +15,13 @@ namespace LetterboxdComparer.Presenter
             {
                 _currentView = value;
                 OnPropertyChanged(nameof(CurrentView));
+                InitiateActivation(); 
             }
+        }
+
+        private void InitiateActivation()
+        {
+            PresenterCollection.Instance.Activate(CurrentView);
         }
 
         public ICommand ShowStatisticsCommand { get; }
