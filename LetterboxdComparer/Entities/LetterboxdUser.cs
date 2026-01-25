@@ -3,16 +3,16 @@ using System.Collections.Generic;
 
 namespace LetterboxdComparer.Entities
 {
-    public class LetterboxdUser
+    public class LetterboxdUser : BaseEntity
     {
         #region Constructor 
-        public LetterboxdUser(string userName, DateTime exportTime)
+        public LetterboxdUser(string userName, DateTime exportDate)
         {
             _userName = userName;
-            _exportTime = exportTime;
-            _watchEvents = new List<LetterboxdWatchEvent>();
-            _watchlist = new List<LetterboxdWatchlistEvent>();
-            _movieRatings = new List<LetterboxdRateEvent>();
+            _exportDate = exportDate;
+            _watchEvents = [];
+            _watchlist = [];
+            _movieRatings = [];
         }
 
         #endregion
@@ -25,11 +25,11 @@ namespace LetterboxdComparer.Entities
             set { _userName = value; }
         }
 
-        private DateTime _exportTime;
-        public DateTime ExportTime
+        private DateTime _exportDate;
+        public DateTime ExportDate
         {
-            get { return _exportTime; }
-            set { _exportTime = value; }
+            get { return _exportDate; }
+            set { _exportDate = value; }
         }
 
         private List<LetterboxdWatchEvent> _watchEvents;
@@ -93,7 +93,7 @@ namespace LetterboxdComparer.Entities
 
         public override string ToString()
         {
-            return $"{UserName} (Exported on {ExportTime:yyyy-MM-dd HH:mm}), WatchEvents: {WatchEvents.Count}, Ratings: {MovieRatings.Count}, WatchList: {Watchlist.Count}";
+            return $"{UserName} (Exported on {ExportDate:yyyy-MM-dd HH:mm}), WatchEvents: {WatchEvents.Count}, Ratings: {MovieRatings.Count}, WatchList: {Watchlist.Count}";
         }
         #endregion
 

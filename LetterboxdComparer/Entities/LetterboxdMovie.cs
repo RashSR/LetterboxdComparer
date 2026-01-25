@@ -1,7 +1,7 @@
 ﻿
 namespace LetterboxdComparer.Entities
 {
-    public class LetterboxdMovie
+    public class LetterboxdMovie : BaseEntity
     {
         #region Constructor
 

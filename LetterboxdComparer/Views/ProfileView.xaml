@@ -18,7 +18,7 @@
 
                 <!-- Export Date -->
                 <DataGridTextColumn Header="Exported"
-                                    Binding="{Binding ExportTime, StringFormat=yyyy-MM-dd HH:mm}"
+                                    Binding="{Binding ExportDate, StringFormat=yyyy-MM-dd HH:mm}"
                                     Width="160" />
 
                 <!-- Watch count -->

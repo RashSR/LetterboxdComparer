@@ -24,7 +24,7 @@ namespace LetterboxdComparer.Entities
         #endregion
 
         #region Fields
-        private static LetterboxdMovieStore instance = null;
+        private static LetterboxdMovieStore? instance = null;
         private readonly Dictionary<string, LetterboxdMovie> _movieDictionary = new Dictionary<string, LetterboxdMovie>();
         
         public List<LetterboxdMovie> StoredMovies

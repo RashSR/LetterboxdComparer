@@ -2,14 +2,12 @@
 
 namespace LetterboxdComparer.Entities
 {
-    public class LetterboxdWatchlistEvent
+    public class LetterboxdWatchlistEvent : BaseEntity
     {
         public LetterboxdWatchlistEvent(DateTime addedDate, LetterboxdMovie movie)
         {
             if(movie == null)
                 throw new ArgumentNullException("Movie cannot be null!");
-            if(addedDate == null)
-                throw new ArgumentNullException("Watch date cannot be null!");
 
             _addedDate = addedDate;
             _movie = movie;

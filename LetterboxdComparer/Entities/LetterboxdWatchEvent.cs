@@ -3,15 +3,13 @@ using System;
 
 namespace LetterboxdComparer.Entities
 {
-    public class LetterboxdWatchEvent
+    public class LetterboxdWatchEvent : BaseEntity
     {
         #region Constructor
         public LetterboxdWatchEvent(DateTime watchDate, LetterboxdMovie movie)
         {
             if(movie == null)
                 throw new ArgumentNullException("Movie cannot be null!");
-            if(watchDate == null)
-                throw new ArgumentNullException("Watch date cannot be null!");
 
             _watchDate = watchDate;
             _movie = movie;

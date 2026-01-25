@@ -2,7 +2,7 @@
 
 namespace LetterboxdComparer.Entities
 {
-    public class LetterboxdRateEvent
+    public class LetterboxdRateEvent : BaseEntity
     {
         public LetterboxdRateEvent(DateTime rateDate, LetterboxdMovie movie, int rating)
         {

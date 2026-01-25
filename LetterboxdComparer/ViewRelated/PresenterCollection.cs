@@ -5,12 +5,21 @@ namespace LetterboxdComparer.ViewRelated
 {
     public class PresenterCollection
     {
-        private readonly Dictionary<AppView, IActivatable> _presenters = new Dictionary<AppView, IActivatable>();
-        private static readonly Lazy<PresenterCollection> _instance = new Lazy<PresenterCollection>(() => new PresenterCollection());
+        #region Constructor
+        private static readonly Lazy<PresenterCollection> _instance = new(() => new PresenterCollection());
 
         public static PresenterCollection Instance => _instance.Value;
 
         private PresenterCollection() { }
+
+        #endregion
+
+        #region Fields
+        private readonly Dictionary<AppView, IActivatable> _presenters = [];
+        
+        #endregion
+
+        #region Methods
 
         public void Add(AppView view, IActivatable presenter)
         {
@@ -18,7 +27,7 @@ namespace LetterboxdComparer.ViewRelated
                 _presenters.Add(view, presenter);
         }
 
-        public IActivatable Get(AppView view)
+        public IActivatable? Get(AppView view)
         {
             return _presenters.TryGetValue(view, out var presenter) ? presenter : null;
         }
@@ -28,5 +37,7 @@ namespace LetterboxdComparer.ViewRelated
             var presenter = Get(view);
             presenter?.OnActivated();
         }
+
+        #endregion
     }
 }
