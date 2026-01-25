@@ -105,7 +105,7 @@ namespace LetterboxdComparer.Presenter
             return new LetterboxdUser(userName, exportTime);
         }
 
-        private List<T> ExtractEventsFromFile<T>(string filePath, bool hasRating = false)
+        private static List<T> ExtractEventsFromFile<T>(string filePath, bool hasRating = false)
         {
             List<T> eventEntries = [];
             using(TextFieldParser parser = new(filePath))

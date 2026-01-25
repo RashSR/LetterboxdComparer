@@ -40,18 +40,18 @@ namespace LetterboxdComparer.Entities
         #region Methods
         public LetterboxdMovie CreateOrGetMovie(string movieName, int releaseYear, string uuid)
         {
-            _movieDictionary.TryGetValue(uuid, out LetterboxdMovie existingMovie);
+            _movieDictionary.TryGetValue(uuid, out LetterboxdMovie? existingMovie);
             if(existingMovie != null)
                 return existingMovie;
             
-            LetterboxdMovie newMovie = new LetterboxdMovie(movieName, releaseYear, uuid);
+            LetterboxdMovie newMovie = new(movieName, releaseYear, uuid);
             _movieDictionary.Add(uuid, newMovie);
             return newMovie;
         }
 
-        public LetterboxdMovie GetMovieByUUID(string uuid)
+        public LetterboxdMovie? GetMovieByUUID(string uuid)
         {
-            _movieDictionary.TryGetValue(uuid, out LetterboxdMovie existingMovie);
+            _movieDictionary.TryGetValue(uuid, out LetterboxdMovie? existingMovie);
             return existingMovie;
         }
 

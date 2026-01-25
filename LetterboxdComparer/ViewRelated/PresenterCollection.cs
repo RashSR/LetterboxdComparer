@@ -23,8 +23,7 @@ namespace LetterboxdComparer.ViewRelated
 
         public void Add(AppView view, IActivatable presenter)
         {
-            if (!_presenters.ContainsKey(view))
-                _presenters.Add(view, presenter);
+            _presenters.TryAdd(view, presenter);
         }
 
         public IActivatable? Get(AppView view)
