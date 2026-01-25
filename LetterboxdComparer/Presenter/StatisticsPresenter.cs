@@ -32,6 +32,7 @@ namespace LetterboxdComparer.Presenter
         public IEnumerable<KeyValuePair<int, int>> MovieCountsPerYear => LoadedUser?.GetMovieCountPerReleaseYear();
 
         #endregion
+
         public ICommand PickZipCommand { get; }
 
         public StatisticsPresenter()
@@ -106,8 +107,8 @@ namespace LetterboxdComparer.Presenter
 
         private List<T> ExtractEventsFromFile<T>(string filePath, bool hasRating = false)
         {
-            List<T> eventEntries = new List<T>();
-            using(TextFieldParser parser = new TextFieldParser(filePath))
+            List<T> eventEntries = [];
+            using(TextFieldParser parser = new(filePath))
             {
                 parser.TextFieldType = FieldType.Delimited;
                 parser.SetDelimiters(",");

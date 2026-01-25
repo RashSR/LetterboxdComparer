@@ -17,7 +17,7 @@ namespace LetterboxdComparer.Presenter
 
         public void OnActivated()
         {
-            Movies = new ObservableCollection<LetterboxdMovie>(LetterboxdMovieStore.Instance.StoredMovies);
+            Movies = new(LetterboxdMovieStore.Instance.StoredMovies);
             OnPropertyChanged(nameof(Movies));
         }
 
