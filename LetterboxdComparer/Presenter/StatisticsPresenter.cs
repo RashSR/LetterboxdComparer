@@ -1,4 +1,5 @@
-﻿using LetterboxdComparer.Entities;
+﻿using LetterboxdComparer.Data;
+using LetterboxdComparer.Entities;
 using LetterboxdComparer.ViewRelated;
 using Microsoft.VisualBasic.FileIO;
 using Microsoft.Win32;
@@ -93,7 +94,7 @@ namespace LetterboxdComparer.Presenter
 
         #region Helpers
 
-        private LetterboxdUser CreateLetterboxdUserFromZipName(string fileName)
+        private static LetterboxdUser CreateLetterboxdUserFromZipName(string fileName)
         {
             //letterboxd forbids user names with dashes -> safe to split like this
             string[] parts = fileName.Split('-');
@@ -101,8 +102,10 @@ namespace LetterboxdComparer.Presenter
                 throw new ArgumentException("Array must have length 8!");
 
             string userName = parts[1];
-            DateTime exportTime = new DateTime(int.Parse(parts[2]), int.Parse(parts[3]), int.Parse(parts[4]), int.Parse(parts[5]), int.Parse(parts[6]), 0);
-            return new LetterboxdUser(userName, exportTime);
+            DateTime exportTime = new(int.Parse(parts[2]), int.Parse(parts[3]), int.Parse(parts[4]), int.Parse(parts[5]), int.Parse(parts[6]), 0);
+            LetterboxdUser user = new(userName, exportTime);
+            Datastore.Instance.StoreEntity(user);
+            return user;
         }
 
         private static List<T> ExtractEventsFromFile<T>(string filePath, bool hasRating = false)
