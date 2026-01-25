@@ -20,8 +20,8 @@
 
         <!-- LEFT MENU -->
         <StackPanel Background="#2D2D30">
+            <Button Content="Profile" Command="{Binding ShowProfileCommand}" Margin="10"/>
             <Button Content="Statistics" Command="{Binding ShowStatisticsCommand}" Margin="10"/>
-            <Button Content="Details" Command="{Binding ShowDetailsCommand}" Margin="10"/>
             <Button Content="MovieStore" Command="{Binding ShowMovieStoreCommand}" Margin="10"/>
         </StackPanel>
 
@@ -48,10 +48,10 @@
                         </DataTrigger>
 
                         <DataTrigger Binding="{Binding CurrentView}"
-                                     Value="{x:Static localViewRelated:AppView.Details}">
+                                     Value="{x:Static localViewRelated:AppView.Profile}">
                             <Setter Property="Content">
                                 <Setter.Value>
-                                    <localViews:DetailsView/>
+                                    <localViews:ProfileView/>
                                 </Setter.Value>
                             </Setter>
                         </DataTrigger>

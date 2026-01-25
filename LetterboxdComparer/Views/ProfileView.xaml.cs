@@ -4,13 +4,13 @@ using System.Windows.Controls;
 namespace LetterboxdComparer.Views
 {
     /// <summary>
-    /// Interaction logic for DetailsView.xaml
+    /// Interaction logic for ProfileView.xaml
     /// </summary>
-    public partial class DetailsView : UserControl
+    public partial class ProfileView : UserControl
     {
-        public DetailsView()
+        public ProfileView()
         {
-            DataContext = new DetailsPresenter();
+            DataContext = new ProfilePresenter();
             InitializeComponent();
         }
     }

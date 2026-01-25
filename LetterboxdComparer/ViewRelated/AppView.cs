@@ -3,8 +3,8 @@ namespace LetterboxdComparer.ViewRelated
 {
     public enum AppView
     {
+        Profile,
         Statistics,
-        Details,
         MovieStore
     }
 }

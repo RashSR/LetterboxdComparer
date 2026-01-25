@@ -2,9 +2,9 @@
 
 namespace LetterboxdComparer.Presenter
 {
-    public class DetailsPresenter : Notifier
+    public class ProfilePresenter : Notifier
     {
-        public DetailsPresenter()
+        public ProfilePresenter()
         {
         }
 

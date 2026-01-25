@@ -25,7 +25,7 @@ namespace LetterboxdComparer.Presenter
         }
 
         public ICommand ShowStatisticsCommand { get; }
-        public ICommand ShowDetailsCommand { get; }
+        public ICommand ShowProfileCommand { get; }
         public ICommand ShowMovieStoreCommand { get; }
 
         #endregion
@@ -33,7 +33,7 @@ namespace LetterboxdComparer.Presenter
         public MainWindowPresenter()
         {
             ShowStatisticsCommand = new RelayCommand(_ => CurrentView = AppView.Statistics);
-            ShowDetailsCommand = new RelayCommand(_ => CurrentView = AppView.Details);
+            ShowProfileCommand = new RelayCommand(_ => CurrentView = AppView.Profile);
             ShowMovieStoreCommand = new RelayCommand(_ => CurrentView = AppView.MovieStore);
             // Default view
             CurrentView = AppView.Statistics;
