@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using LetterboxdComparer.Data;
+using System.Windows;
 
 namespace LetterboxdComparer.Views
 {
@@ -7,5 +8,10 @@ namespace LetterboxdComparer.Views
     /// </summary>
     public partial class App : Application
     {
+        protected override void OnStartup(StartupEventArgs e)
+        {
+            base.OnStartup(e);
+            Datastore.Initialize(null);
+        }
     }
 }
