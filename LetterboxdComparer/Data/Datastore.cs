@@ -47,27 +47,32 @@ namespace LetterboxdComparer.Data
         #region Methods
 
         #region Add
-        public void StoreEntity<T>(T entity) where T : BaseEntity
+        public bool StoreEntity<T>(T entity) where T : BaseEntity
         {
-            Type type = typeof(T);
-            if (!_cachedEntities.TryGetValue(type, out List<BaseEntity>? value))
-            {
-                value = [];
-                _cachedEntities[type] = value;
-            }
-            value.Add(entity);
+            return StoreEntities([entity]);
         }
 
-        public void StoreEntities<T>(List<T> entities) where T : BaseEntity
+        public bool StoreEntities<T>(List<T> entities) where T : BaseEntity
         {
             Type type = typeof(T);
-            if (!_cachedEntities.TryGetValue(typeof(T), out List<BaseEntity>? value))
-            {
-                value = [];
-                _cachedEntities[type] = value;
-            }
 
-            value.AddRange(entities);
+            //Ensure the cache has a list for this type
+            if (!_cachedEntities.ContainsKey(type))
+                _cachedEntities[type] = [];
+
+            //TODO: look up which entities are needed to be created
+            _cachedEntities.TryGetValue(type, out List<BaseEntity>? value);
+
+            if (_crudHandler.Create(entities))
+            {
+                if(value != null)
+                {
+                    value.AddRange(entities);
+                    return true;
+                }
+            }
+            
+            return false;
         }
 
         #endregion
