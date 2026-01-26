@@ -19,7 +19,7 @@ namespace LetterboxdComparer.Data
         {
             get
             {
-                if (_instance == null)
+                if(_instance == null)
                     throw new InvalidOperationException("Datastore not initialized. Call Initialize() first.");
                 return _instance;
             }
@@ -27,9 +27,9 @@ namespace LetterboxdComparer.Data
 
         public static void Initialize(ICRUDHandler crudHandler)
         {
-            lock (_lock)
+            lock(_lock)
             {
-                if (_instance != null)
+                if(_instance != null)
                     throw new InvalidOperationException("Datastore already initialized!");
 
                 _instance = new Datastore(crudHandler);
@@ -47,12 +47,16 @@ namespace LetterboxdComparer.Data
         #region Methods
 
         #region Add
-        public bool StoreEntity<T>(T entity) where T : BaseEntity
+        public T? StoreEntity<T>(T entity) where T : BaseEntity
         {
-            return StoreEntities([entity]);
+            List<T>? storedEntities = StoreEntities([entity]);
+            if(storedEntities != null && storedEntities.Count > 0)
+                return storedEntities[0];
+            
+            return null;
         }
 
-        public bool StoreEntities<T>(List<T> entities) where T : BaseEntity
+        public List<T>? StoreEntities<T>(List<T> entities) where T : BaseEntity
         {
             Type type = typeof(T);
 
@@ -60,19 +64,24 @@ namespace LetterboxdComparer.Data
             if (!_cachedEntities.ContainsKey(type))
                 _cachedEntities[type] = [];
 
-            //TODO: look up which entities are needed to be created
-            _cachedEntities.TryGetValue(type, out List<BaseEntity>? value);
-
-            if (_crudHandler.Create(entities))
+            //Look up which entities need to be created
+            _cachedEntities.TryGetValue(type, out List<BaseEntity>? storeEntities);
+            List<T> toCreate = GetEntitiesNotInStore<T>(storeEntities, entities);
+            try
             {
-                if(value != null)
+                List<T>? createdEntities = _crudHandler.Create(toCreate);
+                if(createdEntities != null)
                 {
-                    value.AddRange(entities);
-                    return true;
+                    storeEntities!.AddRange(createdEntities);
+                    return createdEntities;
                 }
             }
-            
-            return false;
+            catch(Exception)
+            {
+                return null;
+            }
+
+            return null;
         }
 
         #endregion
@@ -128,6 +137,17 @@ namespace LetterboxdComparer.Data
         }
 
         #endregion
+
+        private static List<T> GetEntitiesNotInStore<T>(List<BaseEntity>? storeEntities, List<T> entities) where T : BaseEntity
+        {
+            List<T> toCreate = [];
+            foreach (T enitity in entities)
+            {
+                if (!storeEntities!.Contains(enitity))
+                    toCreate.Add(enitity);
+            }
+            return toCreate;
+        }
 
         #endregion
     }

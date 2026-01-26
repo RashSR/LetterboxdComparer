@@ -94,7 +94,7 @@ namespace LetterboxdComparer.Presenter
 
         #region Helpers
 
-        private static LetterboxdUser CreateLetterboxdUserFromZipName(string fileName)
+        private static LetterboxdUser? CreateLetterboxdUserFromZipName(string fileName)
         {
             //letterboxd forbids user names with dashes -> safe to split like this
             string[] parts = fileName.Split('-');
@@ -103,9 +103,10 @@ namespace LetterboxdComparer.Presenter
 
             string userName = parts[1];
             DateTime exportTime = new(int.Parse(parts[2]), int.Parse(parts[3]), int.Parse(parts[4]), int.Parse(parts[5]), int.Parse(parts[6]), 0);
-            LetterboxdUser user = new(userName, exportTime);
-            Datastore.Instance.StoreEntity(user);
-            return user;
+            
+            LetterboxdUser userToCreate = new(userName, exportTime);
+            LetterboxdUser? createdUser = Datastore.Instance.StoreEntity(userToCreate);
+            return createdUser;
         }
 
         private static List<T> ExtractEventsFromFile<T>(string filePath, bool hasRating = false)
