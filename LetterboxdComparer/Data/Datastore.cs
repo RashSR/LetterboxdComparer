@@ -90,27 +90,21 @@ namespace LetterboxdComparer.Data
         public T? GetEntity<T>(int id) where T : BaseEntity
         {
             Type type = typeof(T);
-            if (_cachedEntities.TryGetValue(type, out List<BaseEntity>? value))
+            if(_cachedEntities.TryGetValue(type, out List<BaseEntity>? value))
             {
                 foreach(BaseEntity entity in value)
                 {
-                    if (entity.Id == id)
+                    if(entity.Id == id)
                         return (T)entity;
                 }
             }
 
             return null;
         }
-        public List<T> GetEntities<T>() where T : BaseEntity
+        public List<T>? GetEntities<T>() where T : BaseEntity
         {
-            Type type = typeof(T);
-            if (_cachedEntities.TryGetValue(type, out List<BaseEntity>? value))
-            {
-                List<T> typedList = value.ConvertAll(item => (T)item);
-                return typedList;
-            }
-
-            return [];
+            //TODO: hasLoadedAllBool?
+            return _crudHandler.Read<T>();
         }
 
         #endregion
@@ -141,9 +135,9 @@ namespace LetterboxdComparer.Data
         private static List<T> GetEntitiesNotInStore<T>(List<BaseEntity>? storeEntities, List<T> entities) where T : BaseEntity
         {
             List<T> toCreate = [];
-            foreach (T enitity in entities)
+            foreach(T enitity in entities)
             {
-                if (!storeEntities!.Contains(enitity))
+                if(!storeEntities!.Contains(enitity))
                     toCreate.Add(enitity);
             }
             return toCreate;

@@ -56,8 +56,8 @@ namespace LetterboxdComparer.Data
             SqliteCommand insertCmd = _connection.CreateCommand();
             insertCmd.Transaction = transaction;
             insertCmd.CommandText = @"
-            INSERT INTO User (user_name, export_date)
-            VALUES ($username, $exportDate);
+                INSERT INTO User (user_name, export_date)
+                VALUES ($username, $exportDate);
             ";
 
             foreach(LetterboxdUser user in usersToCreate)
@@ -78,21 +78,54 @@ namespace LetterboxdComparer.Data
         }
         #endregion
 
-
-
+        #region Delete
         public bool Delete<T>(List<T> entities) where T : BaseEntity
         {
             throw new NotImplementedException();
         }
 
-        public List<T> Read<T>() where T : BaseEntity
+        #endregion
+
+        #region Read
+        public List<T>? Read<T>() where T : BaseEntity
         {
+            if(typeof(T) == typeof(LetterboxdUser))
+                return ReadUsers<T>();
+
             throw new NotImplementedException();
         }
 
+        private List<T>? ReadUsers<T>() where T : BaseEntity
+        {
+            var users = new List<LetterboxdUser>();
+
+            var cmd = _connection.CreateCommand();
+            cmd.CommandText = @"
+                SELECT Id, user_name, export_date
+                FROM User;
+            ";
+
+            SqliteDataReader reader = cmd.ExecuteReader();
+            while (reader.Read())
+            {
+                string userName = reader.GetString(1);
+                DateTime exportDate = reader.IsDBNull(2) ? DateTime.MinValue : DateTime.Parse(reader.GetString(2), null, System.Globalization.DateTimeStyles.RoundtripKind);
+                LetterboxdUser user = new LetterboxdUser(userName, exportDate);
+                user.Id = reader.GetInt32(0);
+                users.Add(user);
+            }
+
+            return users.Cast<T>().ToList();
+        }
+
+        #endregion
+
+        #region Update
         public bool Update<T>(List<T> entities) where T : BaseEntity
         {
             throw new NotImplementedException();
         }
+
+        #endregion
     }
 }
