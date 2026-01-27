@@ -1,6 +1,7 @@
 ﻿using LetterboxdComparer.Data;
 using LetterboxdComparer.Entities;
 using LetterboxdComparer.ViewRelated;
+using Microsoft.Playwright;
 using Microsoft.VisualBasic.FileIO;
 using Microsoft.Win32;
 using System;
@@ -60,7 +61,8 @@ namespace LetterboxdComparer.Presenter
 
             string zipPath = dlg.FileName;
             LoadedUser = CreateLetterboxdUserFromZipName(Path.GetFileName(zipPath));
-            Debug.WriteLine(LoadedUser);
+            Debug.WriteLine("After Loading basic info from ZIP: " + LoadedUser);
+
             if(LoadedUser == null)
                 throw new Exception("Could not Load user from ZIP");
 
@@ -91,12 +93,17 @@ namespace LetterboxdComparer.Presenter
                 }
             }
             OnPropertyChanged(nameof(MovieCountsPerYear));
-            Debug.WriteLine(LoadedUser);
+            Debug.WriteLine("After Loading Events from ZIP: " + LoadedUser);
             Debug.WriteLine("Average Rating: " + LoadedUser.GetAverageRating()/2);
             Debug.WriteLine("RateToWatchRatio: " + LoadedUser.GetRateToWatchRatio()*100 + "%");
             Debug.WriteLine(LetterboxdMovieStore.Instance);
 
+            
             await CheckForRssUpdates(LoadedUser);
+            OnPropertyChanged(nameof(MovieCountsPerYear));
+            Debug.WriteLine("After RSS Update:" + LoadedUser);
+            Debug.WriteLine("Average Rating: " + LoadedUser.GetAverageRating() / 2);
+            Debug.WriteLine("RateToWatchRatio: " + LoadedUser.GetRateToWatchRatio() * 100 + "%");
         }
 
         #endregion
@@ -162,48 +169,101 @@ namespace LetterboxdComparer.Presenter
 
         private static async Task CheckForRssUpdates(LetterboxdUser user)
         {
-            string url = $"https://letterboxd.com/{user.UserName}/rss/";
-            HttpClient httpClient = new();
-            string xmlString = await httpClient.GetStringAsync(url);
-            XDocument rss = XDocument.Parse(xmlString);
-            XNamespace letterboxd = "https://letterboxd.com";
+            XDocument rss = await LoadRssInformation(user);
 
-            IEnumerable<XElement> items = rss.Descendants("item")
+            XNamespace letterboxd = "https://letterboxd.com";
+            IEnumerable<XElement> loadedUnloggedMovies = rss.Descendants("item")
                 .Where(i => i.Element("title") != null &&
                             i.Element(letterboxd + "filmTitle") != null)
                 .Where(i =>
                 {
-
-                    if (DateTime.TryParse((string)i.Element("pubDate"), out var pub))
+                    if (DateTime.TryParse((string)i.Element("pubDate")!, out var pub))
                         return pub > user.ExportDate;
 
                     return false;
                 });
 
-            var films = items.Select(item => new
+            List<RssMovieItem> newMoviesInDiary = [.. loadedUnloggedMovies.Select(item => new RssMovieItem
             {
-                Link = (string)item.Element("link"),
-                Published = DateTime.TryParse((string)item.Element("pubDate"), out var pub) ? (DateTime?)pub : null,
-                WatchedDate = DateTime.TryParse((string)item.Element(letterboxd + "watchedDate"), out var watched) ? (DateTime?)watched : null,
-                Rewatch = ((string)item.Element(letterboxd + "rewatch")) == "Yes",
-                FilmTitle = (string)item.Element(letterboxd + "filmTitle"),
-                FilmYear = (int?)item.Element(letterboxd + "filmYear"),
+                Link = (string)item.Element("link")!,
+                Published = DateTime.Parse((string)item.Element("pubDate")!),
+                WatchedDate = DateTime.Parse((string)item.Element(letterboxd + "watchedDate")!),
+                Rewatch = ((string)item.Element(letterboxd + "rewatch"))! == "Yes",
+                FilmTitle = (string)item.Element(letterboxd + "filmTitle")!,
+                FilmYear = (int)item.Element(letterboxd + "filmYear")!,
                 Rating = (double?)item.Element(letterboxd + "memberRating"),
-                Liked = ((string)item.Element(letterboxd + "memberLike")) == "Yes",
-            }).ToList();
+                Liked = ((string)item.Element(letterboxd + "memberLike"))! == "Yes",
+            })];
 
-            foreach(var item in films)
+            await LoadLetterboxdMovieIdFromPage(newMoviesInDiary, user);
+        }
+
+        private static async Task<XDocument> LoadRssInformation(LetterboxdUser user)
+        {
+            HttpClient httpClient = new();
+            string url = $"https://letterboxd.com/{user.UserName}/rss/";
+            string xmlString = await httpClient.GetStringAsync(url);
+            return XDocument.Parse(xmlString);
+        }
+
+        private static async Task LoadLetterboxdMovieIdFromPage(List<RssMovieItem> newMoviesInDiary, LetterboxdUser user)
+        {
+            IPage page = await InitializeWebPage();
+
+            foreach(RssMovieItem movie in newMoviesInDiary)
             {
-                Debug.WriteLine("=================================");
-                Debug.WriteLine($"Film:             {item.FilmTitle} ({item.FilmYear})");
-                Debug.WriteLine($"Rating:           {(item.Rating.HasValue ? item.Rating + " ★" : "N/A")}");
-                Debug.WriteLine($"Liked:            {(item.Liked ? "Yes" : "No")}");
-                Debug.WriteLine($"Rewatch:          {(item.Rewatch ? "Yes" : "No")}");
-                Debug.WriteLine($"Watched Date:     {(item.WatchedDate?.ToString("yyyy-MM-dd") ?? "N/A")}");
-                Debug.WriteLine($"Published:        {(item.Published?.ToString("yyyy-MM-dd HH:mm") ?? "N/A")}");
-                Debug.WriteLine($"Link:             {item.Link}");
-                Debug.WriteLine("=================================\n");
+                try
+                {
+                    await page.GotoAsync(movie.Link, new()
+                    {
+                        WaitUntil = WaitUntilState.DOMContentLoaded,
+                        Timeout = 30_000
+                    });
+
+                    string? filmId = await page.EvaluateAsync<string?>(@"
+                        () => {
+                            if (window.analytic_params && window.analytic_params.film_id) {
+                                return window.analytic_params.film_id;
+                            }
+                            return null;
+                        }
+                    ");
+
+                    LetterboxdMovie newMovie = LetterboxdMovieStore.Instance.CreateOrGetMovie(movie.FilmTitle, movie.FilmYear, filmId!);
+                    LetterboxdWatchEvent watchEvent = new(movie.WatchedDate, newMovie);
+                    user.WatchEvents.Add(watchEvent);
+                    if(movie.Rating != null)
+                    {
+                        LetterboxdRateEvent rateEvent = new(movie.WatchedDate, newMovie, (int)(movie.Rating * 2));
+                        user.MovieRatings.Add(rateEvent);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"Failed to fetch film ID for {movie.FilmTitle}: {ex.Message}");
+                }
+                //anti-bot friendliness -> await Task.Delay(500);
             }
+
+            await CloseBrowserPage(page);
+        }
+
+        private static async Task<IPage> InitializeWebPage()
+        {
+            IPlaywright playwright = await Playwright.CreateAsync();
+            IBrowser browser = await playwright.Chromium.LaunchAsync(new()
+            {
+                Headless = true
+            });
+            IBrowserContext context = await browser.NewContextAsync();
+            return await context.NewPageAsync();
+        }
+
+        private static async Task CloseBrowserPage(IPage page)
+        {
+            await page.CloseAsync();
+            await page.Context.CloseAsync();
+            await page.Context.Browser!.CloseAsync();
         }
         #endregion
     }
