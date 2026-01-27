@@ -110,12 +110,14 @@ namespace LetterboxdComparer.Data
             {
                 string userName = reader.GetString(1);
                 DateTime exportDate = reader.IsDBNull(2) ? DateTime.MinValue : DateTime.Parse(reader.GetString(2), null, System.Globalization.DateTimeStyles.RoundtripKind);
-                LetterboxdUser user = new LetterboxdUser(userName, exportDate);
-                user.Id = reader.GetInt32(0);
+                LetterboxdUser user = new(userName, exportDate)
+                {
+                    Id = reader.GetInt32(0)
+                };
                 users.Add(user);
             }
 
-            return users.Cast<T>().ToList();
+            return [.. users.Cast<T>()];
         }
 
         #endregion

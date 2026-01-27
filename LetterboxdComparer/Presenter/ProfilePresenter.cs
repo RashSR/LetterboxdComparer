@@ -17,7 +17,7 @@ namespace LetterboxdComparer.Presenter
 
         public void OnActivated()
         {
-            StoredUsers = new(Datastore.Instance.GetEntities<LetterboxdUser>());
+            StoredUsers = new(Datastore.Instance.GetEntities<LetterboxdUser>()!);
             OnPropertyChanged(nameof(StoredUsers));
         }
     }

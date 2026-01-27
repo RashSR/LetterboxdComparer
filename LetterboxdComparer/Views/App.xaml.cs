@@ -13,6 +13,7 @@ namespace LetterboxdComparer.Views
         protected override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
+            
             try
             {
                 InitDatastore();
@@ -33,5 +34,6 @@ namespace LetterboxdComparer.Views
             SQLiteHandler sqliteHandler = new(connectionString);
             Datastore.Initialize(sqliteHandler);
         }
+
     }
 }
