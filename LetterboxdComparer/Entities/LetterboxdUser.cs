@@ -10,6 +10,7 @@ namespace LetterboxdComparer.Entities
         {
             _userName = userName;
             _exportDate = exportDate;
+            _rssExports = [];
             _watchEvents = [];
             _watchlist = [];
             _movieRatings = [];
@@ -51,6 +52,13 @@ namespace LetterboxdComparer.Entities
         {
             get { return _movieRatings; }
             set { _movieRatings = value; }
+        }
+
+        private List<DateTime> _rssExports;
+        public List<DateTime> RssExports
+        {
+            get { return _rssExports; }
+            set { _rssExports = value; }
         }
         #endregion
 

@@ -167,59 +167,43 @@ namespace LetterboxdComparer.Presenter
             string xmlString = await httpClient.GetStringAsync(url);
             XDocument rss = XDocument.Parse(xmlString);
             XNamespace letterboxd = "https://letterboxd.com";
-            XNamespace dc = "http://purl.org/dc/elements/1.1/";
-            XNamespace tmdb = "https://www.themoviedb.org/";
-            IEnumerable<XElement> items = rss.Descendants("item").Where(i => i.Element("title") != null && i.Element(letterboxd + "filmTitle") != null);
-            
+
+            IEnumerable<XElement> items = rss.Descendants("item")
+                .Where(i => i.Element("title") != null &&
+                            i.Element(letterboxd + "filmTitle") != null)
+                .Where(i =>
+                {
+
+                    if (DateTime.TryParse((string)i.Element("pubDate"), out var pub))
+                        return pub > user.ExportDate;
+
+                    return false;
+                });
+
             var films = items.Select(item => new
             {
-                // RSS
-                Title = (string)item.Element("title"),
                 Link = (string)item.Element("link"),
-                Guid = (string)item.Element("guid"),
-
                 Published = DateTime.TryParse((string)item.Element("pubDate"), out var pub) ? (DateTime?)pub : null,
-                DescriptionHtml = (string)item.Element("description"),
-
-                // Letterboxd
-
                 WatchedDate = DateTime.TryParse((string)item.Element(letterboxd + "watchedDate"), out var watched) ? (DateTime?)watched : null,
-
                 Rewatch = ((string)item.Element(letterboxd + "rewatch")) == "Yes",
                 FilmTitle = (string)item.Element(letterboxd + "filmTitle"),
                 FilmYear = (int?)item.Element(letterboxd + "filmYear"),
                 Rating = (double?)item.Element(letterboxd + "memberRating"),
                 Liked = ((string)item.Element(letterboxd + "memberLike")) == "Yes",
-
-                // External
-                TmdbMovieId = (int?)item.Element(tmdb + "movieId"),
-
-                // Author
-                Creator = (string)item.Element(dc + "creator")
             }).ToList();
 
-            foreach (var item in films)
+            foreach(var item in films)
             {
                 Debug.WriteLine("=================================");
-                Debug.WriteLine($"Title:            {item.Title}");
                 Debug.WriteLine($"Film:             {item.FilmTitle} ({item.FilmYear})");
                 Debug.WriteLine($"Rating:           {(item.Rating.HasValue ? item.Rating + " ★" : "N/A")}");
                 Debug.WriteLine($"Liked:            {(item.Liked ? "Yes" : "No")}");
                 Debug.WriteLine($"Rewatch:          {(item.Rewatch ? "Yes" : "No")}");
                 Debug.WriteLine($"Watched Date:     {(item.WatchedDate?.ToString("yyyy-MM-dd") ?? "N/A")}");
                 Debug.WriteLine($"Published:        {(item.Published?.ToString("yyyy-MM-dd HH:mm") ?? "N/A")}");
-
                 Debug.WriteLine($"Link:             {item.Link}");
-                Debug.WriteLine($"GUID:             {item.Guid}");
-                Debug.WriteLine($"TMDB Movie ID:    {(item.TmdbMovieId?.ToString() ?? "N/A")}");
-                Debug.WriteLine($"Creator:          {item.Creator}");
-
-                Debug.WriteLine("Description (HTML):");
-                Debug.WriteLine(item.DescriptionHtml ?? "N/A");
-
                 Debug.WriteLine("=================================\n");
             }
-
         }
         #endregion
     }
